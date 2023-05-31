@@ -30,7 +30,7 @@ parameters:
     default: "[A-Z]{2,30}-[0-9]+"
     type: string
   scan_commit_body:
-    description: Whether or not to scan the Commit Body for the JIRA Issue Tag. Default is false.
+    description: If enabled, the orb will scan the commit body for issue keys and add them to the list of issues to be updated. Only the latest commit in the push will be scanned.
     default: false
     type: boolean
 steps:
