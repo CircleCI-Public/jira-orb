@@ -1,0 +1,45 @@
+description: >
+  Send pipeline job statuses to Jira as a part of your CI config. 
+usage:
+  version: 2.1
+  orbs:
+    jira: circleci/jira@2.0
+    node: circleci/node@5.1
+  jobs:
+    build:
+      executor: node/default
+      steps:
+        - checkout
+        - node/install-packages
+        - run:
+            name: Run tests
+            command: npm test
+        - jira/notify
+    deploy:
+      executor: node/default
+      steps:
+        - checkout
+        - node/install-packages
+        - run:
+            name: Run Deployment
+            command: npm run deploy
+        - jira/notify:
+            job_type: deployment
+            environment: staging
+            environment_type: staging
+            service_id: 123456
+  workflows:
+    main:
+      jobs:
+        - build:
+            filters:
+              tags:
+                only: /.*/
+        - deploy:
+            requires:
+              - build
+            filters:
+              branches:
+                ignore: /.*/
+              tags:
+                only: /^v.*/

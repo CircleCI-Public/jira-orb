@@ -1,0 +1,47 @@
+description: >
+  This command echos "Hello World" using file inclusion.
+# What will this command do?
+# Descriptions should be short, simple, and clear.
+parameters:
+  job_type:
+    description: Indicates if job should be treated as build or deployment in Jira dev panel. Note that Deployments require additional details.
+    default: "build"
+    type: enum
+    enum: ["build", "deployment"]
+  environment:
+    description: For deployments. Indicates the name of target environment. By default the name of the CircleCI Job is used.
+    default: "${CIRCLE_JOB}"
+    type: string
+  environment_type:
+    description: Indicates the category of target environment as defined by Atlassian
+    type: enum
+    enum: ["production", "staging", "testing", "development", "unmapped"]
+    default: "development"
+  state_path:
+    description: Path to store the build state. Must be a writable path. If the path does not exist, it will attempt to be created.
+    default: "/tmp/circleci-orb-jira.status"
+    type: string
+  service_id:
+    description: Specify the JSD service ID for the project this notification targets.
+    type: string
+    default: ''
+  issue_regexp:
+    description: Override the default project key regexp if your project keys follow a different format.
+    default: "[A-Z]{2,30}-[0-9]+"
+    type: string
+  scan_commit_body:
+    description: Whether or not to scan the Commit Body for the JIRA Issue Tag. Default is false.
+    default: false
+    type: boolean
+steps:
+  - run:
+      environment:
+        ORB_VAL_JOB_TYPE: <<parameters.job_type>>
+        ORB_VAL_ENVIRONMENT: <<parameters.environment>>
+        ORB_VAL_ENVIRONMENT_TYPE: <<parameters.environment_type>>
+        ORB_VAL_STATE_PATH: <<parameters.state_path>>
+        ORB_VAL_SERVICE_ID: <<parameters.service_id>>
+        ORB_VAL_ISSUE_REGEXP: <<parameters.issue_regexp>>
+        ORB_BOOL_SCAN_COMMIT_BODY: <<parameters.scan_commit_body>>
+      name: Notify Jira
+      command: <<include(scripts/notify.sh)>>
