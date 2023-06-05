@@ -1,0 +1,122 @@
+version: 2.1
+orbs:
+  # Your orb will be automatically injected here during the pipeline.
+  # Reference your orb's jobs and commands below as they will exist when built.
+  orb-tools: circleci/orb-tools@12.0
+  # The orb definition is intentionally not included here. It will be injected into the pipeline.
+  jira: {}
+
+# Use this tag to ensure test jobs always run,
+# even though the downstream publish job will only run on release tags.
+filters: &filters
+  tags:
+    only: /.*/
+
+# Filter for release tags.
+release-filters: &release-filters
+  branches:
+    ignore: /.*/
+  tags:
+    only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+
+commands:
+  git_reset:
+    description: Bypass git setup for testing
+    steps:
+      - run:
+          name: Set git config
+          command: |
+            git config --global user.email "test@example.com"
+            git config --global user.name "Test User"
+            rm -rf .git
+            git init
+
+jobs:
+  test:
+    docker:
+        - image: cimg/base:current
+    environment:
+      ORB_DEBUG_TEST_COMMIT: "HEAD"
+      ORB_DEBUG_ENABLE: "true"
+    parameters:
+      mock:
+        type: steps
+        default: []
+        description: |
+          Mock any test data and trigger a notification here.
+    steps:
+      - checkout
+      - git_reset
+      - steps: << parameters.mock >>
+      - run:
+          name: Verify notification was sent
+          command: |
+            grep -q "sent=true" /tmp/circleci_jira.log
+
+workflows:
+  test-deploy:
+    jobs:
+      # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
+      # Test your orb's commands in a custom job and test your orb's jobs directly as a part of this workflow.
+      - test:
+          name: test-scan-commit
+          context: CPE_JIRA_TESTING
+          mock:
+            - run:
+                name: Manually set commit message for test
+                command: |
+                  git add .
+                  git commit -m "test: ${CIRCLE_JOB} [CFJ-2]"
+            - jira/notify:
+                pipeline_id: "<< pipeline.id >>"
+                pipeline_number: "<< pipeline.number >>"
+                scan_commit_body: true
+      - test:
+          name: test-scan-branch
+          context: CPE_JIRA_TESTING
+          mock:
+            - run:
+                name: Override CIRCLE_BRANCH
+                command: |
+                  echo "CIRCLE_BRANCH=feat/[CFJ-2]" >> $BASH_ENV
+                  git commit --allow-empty -m "test: ${CIRCLE_JOB}"
+                  
+            - jira/notify:
+                pipeline_id: "<< pipeline.id >>"
+                pipeline_number: "<< pipeline.number >>"
+                scan_commit_body: true
+          filters: *filters
+      - test:
+          name: test-deploy
+          context: CPE_JIRA_TESTING
+          mock:
+            - run:
+                name: Override CIRCLE_BRANCH
+                command: |
+                  echo "CIRCLE_BRANCH=feat/[CFJ-2]" >> $BASH_ENV
+                  git commit --allow-empty -m "test: ${CIRCLE_JOB}"
+                  
+            - jira/notify:
+                pipeline_id: "<< pipeline.id >>"
+                pipeline_number: "<< pipeline.number >>"
+                service_id: "123"
+                job_type: deployment
+                environment: staging
+                environment_type: staging
+          filters: *filters
+      # The orb must be re-packed for publishing, and saved to the workspace.
+      - orb-tools/pack:
+          filters: *release-filters
+      - orb-tools/publish:
+          orb_name: circleci/jira
+          vcs_type: << pipeline.project.type >>
+          pub_type: production
+          # Ensure this job requires all test jobs and the pack job.
+          requires:
+            - orb-tools/pack
+            - test-scan-commit
+            - test-scan-branch
+            - test-deploy
+          context: orb-publisher
+          github_token: GHI_TOKEN
+          filters: *release-filters

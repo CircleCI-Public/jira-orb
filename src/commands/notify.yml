@@ -1,5 +1,5 @@
 description: >
-  This command echos "Hello World" using file inclusion.
+  Send a notification to Jira for a build or deployment.
 # What will this command do?
 # Descriptions should be short, simple, and clear.
 parameters:
@@ -17,31 +17,54 @@ parameters:
     type: enum
     enum: ["production", "staging", "testing", "development", "unmapped"]
     default: "development"
-  state_path:
-    description: Path to store the build state. Must be a writable path. If the path does not exist, it will attempt to be created.
-    default: "/tmp/circleci-orb-jira.status"
-    type: string
   service_id:
-    description: Specify the JSD service ID for the project this notification targets.
+    description: Specify the JSD service ID for the project this notification targets. This will be sent with deployment notifications.
     type: string
-    default: ''
+    default: "${JIRA_SERVICE_ID}"
   issue_regexp:
-    description: Override the default project key regexp if your project keys follow a different format.
-    default: "[A-Z]{2,30}-[0-9]+"
+    description: Override the default project key regexp if your project keys follow a different format. Your key must be in the [1] capture group.
+    default: \[([A-Z]{2,30}-[0-9]+)\]
     type: string
   scan_commit_body:
     description: If enabled, the orb will scan the commit body for issue keys and add them to the list of issues to be updated. Only the latest commit in the push will be scanned.
     default: false
     type: boolean
+  pipeline_id:
+    description: Pass in the pipeline id via CircleCI pipeline parameters. This must be specified manually. Refer to usage example.
+    type: string
+  pipeline_number:
+    description: Pass in the pipeline number via CircleCI pipeline parameters. This must be specified manually. Refer to usage example.
+    type: integer
+  webhook_url:
+    description: Get your webhook URL from the management panel in the CircleCI for Jira app in Atlassian.
+    type: string
+    default: "${JIRA_WEBHOOK_URL}"
+
 steps:
+  - run:
+      when: on_fail
+      name: "Jira - Detecting Job Status: Failed"
+      environment:
+        JOB_STATUS: "failed"
+      command: <<include(scripts/detect.sh)>>
+  - run:
+      when: on_success
+      name: "Jira - Detecting Job Status: Successful"
+      environment:
+        JOB_STATUS: "successful"
+      command: <<include(scripts/detect.sh)>>
   - run:
       environment:
         ORB_VAL_JOB_TYPE: <<parameters.job_type>>
         ORB_VAL_ENVIRONMENT: <<parameters.environment>>
         ORB_VAL_ENVIRONMENT_TYPE: <<parameters.environment_type>>
-        ORB_VAL_STATE_PATH: <<parameters.state_path>>
         ORB_VAL_SERVICE_ID: <<parameters.service_id>>
         ORB_VAL_ISSUE_REGEXP: <<parameters.issue_regexp>>
         ORB_BOOL_SCAN_COMMIT_BODY: <<parameters.scan_commit_body>>
+        ORB_VAL_PIPELINE_ID: <<parameters.pipeline_id>>
+        ORB_VAL_PIPELINE_NUMBER: <<parameters.pipeline_number>>
+        ORB_VAL_JIRA_WEBHOOK_URL: <<parameters.webhook_url>>
+        JSON_BUILD_PAYLOAD: <<include(scripts/build_payload.json)>>
+        JSON_DEPLOYMENT_PAYLOAD: <<include(scripts/deployment_payload.json)>>
       name: Notify Jira
       command: <<include(scripts/notify.sh)>>

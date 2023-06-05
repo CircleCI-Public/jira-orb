@@ -1,0 +1,20 @@
+{
+  "builds": [
+    {
+      "schemaVersion": "1.0",
+      "pipelineId": "${ORB_VAL_PIPELINE_ID}",
+      "buildNumber": "${CIRCLE_BUILD_NUM}",
+      "updateSequenceNumber": "${TIME_EPOCH}",
+      "displayName": "${CIRCLE_PROJECT_REPONAME} #${CIRCLE_BUILD_NUM}",
+      "description": "${CIRCLE_PROJECT_REPONAME} build #${CIRCLE_BUILD_NUM}: ${JIRA_BUILD_STATUS}",
+      "label": "Build: ${CIRCLE_PROJECT_REPONAME} #${CIRCLE_BUILD_NUM}",
+      "url": "${CIRCLE_BUILD_URL}",
+      "state": "${JIRA_BUILD_STATUS}",
+      "lastUpdated": "${TIME_STAMP}",
+      "issueKeys": []
+    }
+  ],
+  "providerMetadata": {
+    "agent": "circleci-orb"
+  }
+}
