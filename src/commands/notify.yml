@@ -38,7 +38,7 @@ parameters:
   oidc_token:
     description: Customize the OpenID Connect token used to authenticate with Jira. This most often will not need to be changed.
     type: string
-    default: "${CIRCLE_OIDC_TOKEN_V2}" 
+    default: "${CIRCLE_OIDC_TOKEN_V2}"
   webhook_url:
     description: Get your webhook URL from the management panel in the CircleCI for Jira app in Atlassian.
     type: string
