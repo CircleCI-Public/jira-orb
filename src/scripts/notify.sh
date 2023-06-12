@@ -82,6 +82,7 @@ postForge() {
   echo "Posting payload to CircleCI for Jira Forge app"
   FORGE_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${ORB_VAL_JIRA_WEBHOOK_URL}" \
     -H "Content-Type: application/json" \
+    -H "Authorization: ${ORB_VAL_JIRA_OIDC_TOKEN}" \
     -d "${FORGE_PAYLOAD}")
   HTTP_BODY=$(echo "$FORGE_RESPONSE" | sed -e '$d')
   HTTP_STATUS=$(echo "$FORGE_RESPONSE" | tail -n 1)
@@ -115,6 +116,7 @@ ORB_VAL_ENVIRONMENT_TYPE=$(circleci env subst "${ORB_VAL_ENVIRONMENT_TYPE}")
 ORB_VAL_STATE_PATH=$(circleci env subst "${ORB_VAL_STATE_PATH}")
 ORB_VAL_SERVICE_ID=$(circleci env subst "${ORB_VAL_SERVICE_ID}")
 ORB_VAL_ISSUE_REGEXP=$(circleci env subst "${ORB_VAL_ISSUE_REGEXP}")
+ORB_VAL_JIRA_OIDC_TOKEN=$(circleci env subst "${ORB_VAL_JIRA_OIDC_TOKEN}")
 ORB_VAL_JIRA_WEBHOOK_URL=$(circleci env subst "${ORB_VAL_JIRA_WEBHOOK_URL}")
 # ORB_BOOL_SCAN_COMMIT_BODY - 1 = true, 0 = false
 # ORB_VAL_PIPELINE_ID - pipeline id

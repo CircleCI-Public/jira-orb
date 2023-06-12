@@ -35,6 +35,10 @@ parameters:
   pipeline_number:
     description: Pass in the pipeline number via CircleCI pipeline parameters. This must be specified manually. Refer to usage example.
     type: integer
+  oidc_token:
+    description: Customize the OpenID Connect token used to authenticate with Jira. This most often will not need to be changed.
+    type: string
+    default: "${CIRCLE_OIDC_TOKEN_V2}"
   webhook_url:
     description: Get your webhook URL from the management panel in the CircleCI for Jira app in Atlassian.
     type: string
@@ -64,6 +68,7 @@ steps:
         ORB_VAL_PIPELINE_ID: <<parameters.pipeline_id>>
         ORB_VAL_PIPELINE_NUMBER: <<parameters.pipeline_number>>
         ORB_VAL_JIRA_WEBHOOK_URL: <<parameters.webhook_url>>
+        ORB_VAL_JIRA_OIDC_TOKEN: <<parameters.oidc_token>>
         JSON_BUILD_PAYLOAD: <<include(scripts/build_payload.json)>>
         JSON_DEPLOYMENT_PAYLOAD: <<include(scripts/deployment_payload.json)>>
       name: Notify Jira
