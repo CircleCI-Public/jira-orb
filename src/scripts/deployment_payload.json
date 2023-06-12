@@ -1,0 +1,38 @@
+{
+  "deployments": [
+    {
+      "deploymentSequenceNumber": "${ORB_VAL_PIPELINE_NUMBER}",
+      "updateSequenceNumber": "${TIME_EPOCH}",
+      "associations": [
+        {
+          "associationType": "issueIdOrKeys",
+          "values": []
+        },
+        {
+          "associationType": "serviceIdOrKeys",
+          "values": []
+        }
+      ],
+      "displayName": "Deployment #${ORB_VAL_PIPELINE_NUMBER} of ${CIRCLE_PROJECT_REPONAME}",
+      "url": "${CIRCLE_BUILD_URL}",
+      "description": "Deployment successful",
+      "lastUpdated": "${TIME_STAMP}",
+      "label": "Release ${TIME_STAMP}::${ORB_VAL_PIPELINE_NUMBER}",
+      "state": "${JIRA_BUILD_STATUS}",
+      "pipeline": {
+        "id": "${ORB_VAL_PIPELINE_ID}",
+        "displayName": "Deployment: ${CIRCLE_PROJECT_REPONAME}::${ORB_VAL_PIPELINE_NUMBER}",
+        "url": "${JIRA_PIPELINE_URL}"
+      },
+      "environment": {
+        "id": "${ORB_VAL_ENVIRONMENT}",
+        "displayName": "${CIRCLE_JOB}::${ORB_VAL_PIPELINE_ID}",
+        "type": "${ORB_VAL_ENVIRONMENT_TYPE}"
+      },
+      "schemaVersion": "1.0"
+    }
+  ],
+  "providerMetadata": {
+    "agent": "circleci-orb"
+  }
+}

@@ -1,5 +1,5 @@
 description: >
-  Send pipeline job statuses to Jira as a part of your CI config. 
+  Send pipeline job statuses to Jira as a part of your CI config.
 usage:
   version: 2.1
   orbs:
@@ -14,7 +14,9 @@ usage:
         - run:
             name: Run tests
             command: npm test
-        - jira/notify
+        - jira/notify:
+            pipeline_id: "<< pipeline.id >>"
+            pipeline_number: "<< pipeline.number >>"
     deploy:
       executor: node/default
       steps:
@@ -27,6 +29,8 @@ usage:
             job_type: deployment
             environment: staging
             environment_type: staging
+            pipeline_id: "<< pipeline.id >>"
+            pipeline_number: "<< pipeline.number >>"
             service_id: 123456
   workflows:
     main:
