@@ -108,6 +108,28 @@ postForge() {
   fi
 }
 
+# Verify any values that need to be present before continuing
+verifyVars() {
+
+  if [[ -z "$ORB_VAL_JIRA_OIDC_TOKEN" ]]; then
+    echo "'oidc_token' parameter is required"
+    exit 1
+  fi
+
+  if ! [[ "$ORB_VAL_JIRA_WEBHOOK_URL" =~ ^https:\/\/([a-zA-Z0-9.-]+\.[A-Za-z]{2,6})(:[0-9]{1,5})?(\/.*)?$ ]]; then
+    echo "'webhook_url' must be a valid URL"
+    echo "  Value: $ORB_VAL_JIRA_WEBHOOK_URL"
+    exit 1
+  fi
+
+  if [[ -z "$ORB_VAL_ENVIRONMENT" ]]; then
+    echo "'environment' parameter is required"
+    echo "  Value: $ORB_VAL_ENVIRONMENT"
+    exit 1
+  fi
+
+}
+
 
 # Sanetize the input
 # ORB_VAL_JOB_TYPE - Enum string value of 'build' or 'deploy'
@@ -165,6 +187,7 @@ export PROJECT_SLUG
 
 
 main() {
+  verifyVars
   getIssueKeys
   printf "Notification type: %s\n" "$ORB_VAL_JOB_TYPE"
   if [[ "$ORB_VAL_JOB_TYPE" == 'build' ]]; then
