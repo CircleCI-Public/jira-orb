@@ -110,6 +110,13 @@ postForge() {
 
 # Verify any values that need to be present before continuing
 verifyVars() {
+  if [[ "$ORB_DEBUG_ENABLE" == "true" ]]; then
+    {
+      echo "OIDC TOKEN: $ORB_VAL_JIRA_OIDC_TOKEN"
+      echo "WEBHOOK URL: $ORB_VAL_JIRA_WEBHOOK_URL"
+      echo "ENVIRONMENT: $ORB_VAL_ENVIRONMENT"
+    } >> $JIRA_LOGFILE
+  fi
 
   if [[ -z "$ORB_VAL_JIRA_OIDC_TOKEN" ]]; then
     echo "'oidc_token' parameter is required"
