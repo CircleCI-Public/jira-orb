@@ -203,12 +203,8 @@ main() {
     postForge "$PAYLOAD"
   elif [[ "$ORB_VAL_JOB_TYPE" == 'deployment' ]]; then
     PAYLOAD=$(echo "$JSON_DEPLOYMENT_PAYLOAD" | circleci env subst)
-    echo "DEBUG"
-    echo "$PAYLOAD"
     # Set the issue keys array
     PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.deployments[0].associations |= map(if .associationType == "issueIdOrKeys" then .values = $keys else . end)' <<< "$PAYLOAD")
-    echo DEBUG
-    echo "$PAYLOAD"
     # Set ServiceID
     # PAYLOAD=$(jq --arg serviceId "$ORB_VAL_SERVICE_ID" '.deployments[0].associations[] | select(.associationType == "serviceIdOrKeys") .values = [$serviceId]' <<< "$PAYLOAD")
     postForge "$PAYLOAD"
