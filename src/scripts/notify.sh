@@ -131,9 +131,7 @@ log() {
       echo "$1"
       echo ""
     } >> $JIRA_LOGFILE
-    echo "#### DEBUG ####"
-    echo -e "$1"
-    echo "###############"
+    printf "\n  #### DEBUG ####\n  %s\n  ###############\n\n" "$1"
   fi
 }
 
