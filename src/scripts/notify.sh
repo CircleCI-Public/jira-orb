@@ -138,6 +138,13 @@ log() {
 
 # Sanetize the input
 # ORB_VAL_JOB_TYPE - Enum string value of 'build' or 'deploy'
+# ORB_BOOL_DEBUG - 1 = true, 0 = false
+if [[ "$ORB_BOOL_DEBUG" -eq 1 ]]; then
+  ORB_DEBUG_ENABLE="true"
+else
+  ORB_DEBUG_ENABLE="false"
+fi
+ORB_LOG_LEVEL=$([ "$ORB_DEBUG_ENABLE" = true ] && echo "log" || echo "error")
 ORB_VAL_ENVIRONMENT=$(circleci env subst "${ORB_VAL_ENVIRONMENT}")
 ORB_VAL_ENVIRONMENT_TYPE=$(circleci env subst "${ORB_VAL_ENVIRONMENT_TYPE}")
 ORB_VAL_STATE_PATH=$(circleci env subst "${ORB_VAL_STATE_PATH}")
@@ -145,17 +152,11 @@ ORB_VAL_SERVICE_ID=$(circleci env subst "${ORB_VAL_SERVICE_ID}")
 ORB_VAL_ISSUE_REGEXP=$(circleci env subst "${ORB_VAL_ISSUE_REGEXP}")
 ORB_VAL_JIRA_OIDC_TOKEN=$(circleci env subst "${ORB_VAL_JIRA_OIDC_TOKEN}")
 ORB_VAL_JIRA_WEBHOOK_URL=$(circleci env subst "${ORB_VAL_JIRA_WEBHOOK_URL}")
+# Add the log parameter to the URL
+ORB_VAL_JIRA_WEBHOOK_URL="${ORB_VAL_JIRA_WEBHOOK_URL}?verbosity=${ORB_LOG_LEVEL}"
 # ORB_BOOL_SCAN_COMMIT_BODY - 1 = true, 0 = false
 # ORB_VAL_PIPELINE_ID - pipeline id
 # ORB_VAL_PIPELINE_NUMBER - pipeline number
-# ORB_BOOL_DEBUG - 1 = true, 0 = false
-if [[ "$ORB_BOOL_DEBUG" == "1" ]]; then
-  ORB_DEBUG_ENABLE="true"
-else
-  ORB_DEBUG_ENABLE="false"
-fi
-# ---
-# Create custom variables
 TIME_EPOCH=$(date +%s)
 TIME_STAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
 # ORB_DEBUG_TEST_COMMIT is only used in testing
@@ -196,6 +197,7 @@ export ORB_VAL_JIRA_WEBHOOK_URL
 export PROJECT_VCS
 export PROJECT_SLUG
 export OBR_DEBUG_ENABLE
+export ORB_LOG_LEVEL
 
 
 main() {
