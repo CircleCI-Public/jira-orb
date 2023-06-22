@@ -207,6 +207,17 @@ main() {
     PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.deployments[0].associations |= map(if .associationType == "issueIdOrKeys" then .values = $keys else . end)' <<< "$PAYLOAD")
     # Set ServiceID
     PAYLOAD=$(jq --arg serviceId "$ORB_VAL_SERVICE_ID" '.deployments[0].associations[] | select(.associationType == "serviceIdOrKeys") .values = [$serviceId]' <<< "$PAYLOAD")
+    if [[ "$ORB_DEBUG_ENABLE" == "true" ]]; then
+      echo "#### DEBUG ####"
+      echo "PAYLOAD:"
+      echo "$PAYLOAD" | jq '.'
+      echo "###############"
+      {
+        echo ""
+        echo "$PAYLOAD" | jq '.'
+        echo ""
+      } >> $JIRA_LOGFILE
+    fi
     postForge "$PAYLOAD"
   else
     echo "Unable to determine job type"
