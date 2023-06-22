@@ -86,16 +86,8 @@ postForge() {
     -d "${FORGE_PAYLOAD}")
   HTTP_BODY=$(echo "$FORGE_RESPONSE" | sed -e '$d')
   HTTP_STATUS=$(echo "$FORGE_RESPONSE" | tail -n 1)
-
-  if [[ "$ORB_DEBUG_ENABLE" == "true" ]]; then
-    echo
-    echo "#### DEBUG ####"
-    echo "Forge response:"
-    echo "  HTTP Status: $HTTP_STATUS"
-    echo "  HTTP Body:"
-    echo "$HTTP_BODY" | jq '.'
-    echo "###############"
-  fi
+  MSG=$(printf "HTTP Status: %s\nHTTP Body: %s\n" "$HTTP_STATUS" "$HTTP_BODY")
+  log "$MSG"
 
   # Check for errors
   JIRA_ERRORS="$(echo "$HTTP_BODY" | jq -r '..|select(type == "object" and (has("errors") or has("error")))|(.errors // .error)')"
