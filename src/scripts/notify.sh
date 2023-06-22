@@ -110,15 +110,8 @@ postForge() {
 
 # Verify any values that need to be present before continuing
 verifyVars() {
-  if [[ "$ORB_DEBUG_ENABLE" == "true" ]]; then
-    {
-      echo ""
-      echo "OIDC TOKEN: $ORB_VAL_JIRA_OIDC_TOKEN"
-      echo "WEBHOOK URL: $ORB_VAL_JIRA_WEBHOOK_URL"
-      echo "ENVIRONMENT: $ORB_VAL_ENVIRONMENT"
-      echo ""
-    } >> $JIRA_LOGFILE
-  fi
+  MSG=$(printf "OIDC Token: %s\nWebhook URL: %s\nEnvironment: %s\n" "$ORB_VAL_JIRA_OIDC_TOKEN" "$ORB_VAL_JIRA_WEBHOOK_URL" "$ORB_VAL_ENVIRONMENT")
+  log "$MSG"
 
   if [[ -z "$ORB_VAL_JIRA_OIDC_TOKEN" ]]; then
     echo "'oidc_token' parameter is required"
@@ -137,6 +130,19 @@ verifyVars() {
     exit 1
   fi
 
+}
+
+log() {
+  if [[ "$ORB_DEBUG_ENABLE" == "true" ]]; then
+    {
+      echo ""
+      echo "$1"
+      echo ""
+    } >> $JIRA_LOGFILE
+    echo "#### DEBUG ####"
+    echo -e "$1"
+    echo "###############"
+  fi
 }
 
 
@@ -210,15 +216,8 @@ main() {
     # Set ServiceID
     PAYLOAD=$(jq --arg serviceId "$ORB_VAL_SERVICE_ID" '.deployments[0].associations |= map(if .associationType == "serviceIdOrKeys" then .values = [$serviceId] else . end)' <<< "$PAYLOAD")
     if [[ "$ORB_DEBUG_ENABLE" == "true" ]]; then
-      echo "#### DEBUG ####"
-      echo "PAYLOAD:"
-      echo "$PAYLOAD" | jq '.'
-      echo "###############"
-      {
-        echo ""
-        echo "$PAYLOAD" | jq '.'
-        echo ""
-      } >> $JIRA_LOGFILE
+      MSG=$(printf "PAYLOAD: %s\n" "$PAYLOAD")
+      log "$MSG"
     fi
     postForge "$PAYLOAD"
   else
@@ -226,10 +225,8 @@ main() {
     exit 1
   fi
   printf "\nJira notification sent!\n\n"
-  {
-    echo ""
-    echo "sent=true"
-  } >> $JIRA_LOGFILE
+  MSG=$(printf "sent=true")
+  log "$MSG"
 }
 
 # Run the script
