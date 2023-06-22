@@ -209,6 +209,9 @@ export OBR_DEBUG_ENABLE
 
 
 main() {
+  if [[ "$ORB_DEBUG_ENABLE" == "true" ]]; then
+    echo "Debugging Enabled"
+  fi
   verifyVars
   getIssueKeys
   printf "Notification type: %s\n" "$ORB_VAL_JOB_TYPE"
