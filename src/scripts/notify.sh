@@ -158,6 +158,12 @@ ORB_VAL_JIRA_WEBHOOK_URL=$(circleci env subst "${ORB_VAL_JIRA_WEBHOOK_URL}")
 # ORB_BOOL_SCAN_COMMIT_BODY - 1 = true, 0 = false
 # ORB_VAL_PIPELINE_ID - pipeline id
 # ORB_VAL_PIPELINE_NUMBER - pipeline number
+# ORB_BOOL_DEBUG - 1 = true, 0 = false
+if [[ "$ORB_BOOL_DEBUG" == "1" ]]; then
+  ORB_DEBUG_ENABLE="true"
+else
+  ORB_DEBUG_ENABLE="false"
+fi
 # ---
 # Create custom variables
 TIME_EPOCH=$(date +%s)
@@ -199,6 +205,7 @@ export JIRA_ISSUE_KEYS
 export ORB_VAL_JIRA_WEBHOOK_URL
 export PROJECT_VCS
 export PROJECT_SLUG
+export OBR_DEBUG_ENABLE
 
 
 main() {

@@ -43,7 +43,10 @@ parameters:
     description: Get your webhook URL from the management panel in the CircleCI for Jira app in Atlassian.
     type: string
     default: "${JIRA_WEBHOOK_URL}"
-
+  debug:
+    description: "Enable additional logging if you are running into issues. A log will be generated a '/tmp/circleci_jira.log'."
+    type: boolean
+    default: false
 steps:
   - run:
       when: on_fail
@@ -71,5 +74,6 @@ steps:
         ORB_VAL_JIRA_OIDC_TOKEN: <<parameters.oidc_token>>
         JSON_BUILD_PAYLOAD: <<include(scripts/build_payload.json)>>
         JSON_DEPLOYMENT_PAYLOAD: <<include(scripts/deployment_payload.json)>>
+        ORB_BOOL_DEBUG: <<parameters.debug>>
       name: Notify Jira
       command: <<include(scripts/notify.sh)>>
