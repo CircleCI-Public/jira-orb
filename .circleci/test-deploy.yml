@@ -37,7 +37,6 @@ jobs:
         - image: cimg/base:current
     environment:
       ORB_DEBUG_TEST_COMMIT: "HEAD"
-      ORB_DEBUG_ENABLE: "true"
     parameters:
       mock:
         type: steps
@@ -71,6 +70,7 @@ workflows:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
                 scan_commit_body: true
+                debug: true
       - test:
           name: test-scan-branch
           context: CPE_JIRA_TESTING
@@ -85,6 +85,7 @@ workflows:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
                 scan_commit_body: true
+                debug: true
           filters: *filters
       - test:
           name: test-deploy
@@ -103,6 +104,7 @@ workflows:
                 job_type: deployment
                 environment: staging
                 environment_type: staging
+                debug: true
           filters: *filters
       # The orb must be re-packed for publishing, and saved to the workspace.
       - orb-tools/pack:
