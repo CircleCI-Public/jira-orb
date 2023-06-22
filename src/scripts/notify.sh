@@ -112,9 +112,11 @@ postForge() {
 verifyVars() {
   if [[ "$ORB_DEBUG_ENABLE" == "true" ]]; then
     {
+      echo ""
       echo "OIDC TOKEN: $ORB_VAL_JIRA_OIDC_TOKEN"
       echo "WEBHOOK URL: $ORB_VAL_JIRA_WEBHOOK_URL"
       echo "ENVIRONMENT: $ORB_VAL_ENVIRONMENT"
+      echo ""
     } >> $JIRA_LOGFILE
   fi
 
@@ -224,7 +226,10 @@ main() {
     exit 1
   fi
   printf "\nJira notification sent!\n\n"
-  echo "sent=true" >> $JIRA_LOGFILE
+  {
+    echo ""
+    echo "sent=true"
+  } >> $JIRA_LOGFILE
 }
 
 # Run the script
