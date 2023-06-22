@@ -164,7 +164,6 @@ COMMIT_MESSAGE=$(git show -s --format='%s' "${ORB_DEBUG_TEST_COMMIT:-$CIRCLE_SHA
 JIRA_BUILD_STATUS=$(cat /tmp/circleci_jira_status)
 PROJECT_VCS=""
 PROJECT_SLUG=""
-JIRA_PIPELINE_URL="https://app.circleci.com/pipelines/$ORG_SLUG/$ORB_VAL_PIPELINE_NUMBER"
 JIRA_ISSUE_KEYS=() # Set in getIssueKeys
 
 # Built-ins - For reference
@@ -176,6 +175,7 @@ JIRA_ISSUE_KEYS=() # Set in getIssueKeys
 ## Variables are set directly rather than returned to improve error handling
 getVCS
 getSlug
+JIRA_PIPELINE_URL="https://app.circleci.com/pipelines/$PROJECT_SLUG/$ORB_VAL_PIPELINE_NUMBER"
 
 # Export variables for use in envsubst
 export ORB_VAL_ENVIRONMENT
