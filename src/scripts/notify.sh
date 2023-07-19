@@ -6,7 +6,7 @@ touch $JIRA_LOGFILE
 # Ensure status file exists
 if [ ! -f "/tmp/circleci_jira_status" ]; then
   echo "Status file not found at /tmp/circleci_jira_status"
-  exit 1
+  exit 1 # Critical error, do not skip
 fi
 
 # Functions to create environment variables
@@ -17,7 +17,17 @@ getVCS() {
     PROJECT_VCS="${BASH_REMATCH[1]}"
   else
     echo "Unable to determine VCS type"
+    exit 1 # Critical error, do not skip
   fi
+}
+
+errorOut() {
+  echo "Exiting..."
+  STATUS=${1:-0}
+  if [[ "$JIRA_BOOL_IGNORE_ERRORS" == "1" ]]; then
+    STATUS=0
+  fi
+  exit "$STATUS"
 }
 
 # Get the slug given the build url
@@ -35,7 +45,7 @@ getSlug() {
   fi
   if [[ ${#PROJECT_SLUG} -eq 0 ]]; then
     echo "Unable to determine project slug"
-    exit 1
+    exit 1 # Critical error, do not skip
   fi
 }
 
@@ -67,7 +77,7 @@ getIssueKeys() {
     echo "$message"
     echo -e "$dbgmessage"
     printf "\nSkipping Jira notification\n\n"
-    exit 0
+    errorOut 0
   fi
   # Set the JIRA_ISSUE_KEYS variable to JSON array
   JIRA_ISSUE_KEYS=$(printf '%s\n' "${KEY_ARRAY[@]}" | jq -R . | jq -s .)
@@ -103,8 +113,7 @@ postForge() {
     sleep 3
     postForge "$FORGE_PAYLOAD" "$((COUNT + 1))"
   elif [[ "$HTTP_STATUS" -gt 399 ]]; then
-    echo "Exiting..."
-    exit 1
+    errorOut 1
   fi
 }
 
@@ -115,19 +124,19 @@ verifyVars() {
 
   if [[ -z "$JIRA_VAL_JIRA_OIDC_TOKEN" ]]; then
     echo "'oidc_token' parameter is required"
-    exit 1
+    exit 1 # Critical error, do not skip
   fi
 
   if ! [[ "$JIRA_VAL_JIRA_WEBHOOK_URL" =~ ^https:\/\/([a-zA-Z0-9.-]+\.[A-Za-z]{2,6})(:[0-9]{1,5})?(\/.*)?$ ]]; then
     echo "'webhook_url' must be a valid URL"
     echo "  Value: $JIRA_VAL_JIRA_WEBHOOK_URL"
-    exit 1
+    exit 1 # Critical error, do not skip
   fi
 
   if [[ -z "$JIRA_VAL_ENVIRONMENT" ]]; then
     echo "'environment' parameter is required"
     echo "  Value: $JIRA_VAL_ENVIRONMENT"
-    exit 1
+    exit 1 # Critical error, do not skip
   fi
 
 }
@@ -230,7 +239,7 @@ main() {
     postForge "$PAYLOAD"
   else
     echo "Unable to determine job type"
-    exit 1
+    exit 1 # Critical error, do not skip
   fi
   printf "\nJira notification sent!\n\n"
   MSG=$(printf "sent=true")

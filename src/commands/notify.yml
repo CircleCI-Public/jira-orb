@@ -47,6 +47,10 @@ parameters:
     description: "Enable additional logging if you are running into issues. A log will be generated at '/tmp/circleci_jira.log'."
     type: boolean
     default: false
+  ignore_errors:
+    description: "Ignore errors. Errors posting to Atlassian will not result in failed builds unless disabled."
+    type: boolean
+    default: true
 steps:
   - run:
       when: on_fail
@@ -75,5 +79,6 @@ steps:
         JSON_BUILD_PAYLOAD: <<include(scripts/build_payload.json)>>
         JSON_DEPLOYMENT_PAYLOAD: <<include(scripts/deployment_payload.json)>>
         JIRA_BOOL_DEBUG: <<parameters.debug>>
+        JIRA_BOOL_IGNORE_ERRORS: <<parameters.ignore_errors>>
       name: Notify Jira
       command: <<include(scripts/notify.sh)>>
