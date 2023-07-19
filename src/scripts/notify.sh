@@ -43,13 +43,13 @@ getSlug() {
 getIssueKeys() {
   KEY_ARRAY=()
   # Get branch keys
-  if [[ "$CIRCLE_BRANCH" =~ $ORB_VAL_ISSUE_REGEXP ]]; then
+  if [[ "$CIRCLE_BRANCH" =~ $JIRA_VAL_ISSUE_REGEXP ]]; then
     KEY_ARRAY+=( "${BASH_REMATCH[1]}")
   fi
   # Get commit keys (if enabled)
-  if [[ "$COMMIT_MESSAGE" =~ $ORB_VAL_ISSUE_REGEXP ]]; then
+  if [[ "$COMMIT_MESSAGE" =~ $JIRA_VAL_ISSUE_REGEXP ]]; then
     COMMIT_KEYS=("${BASH_REMATCH[1]}")
-    if [[ "$ORB_BOOL_SCAN_COMMIT_BODY" == "1" ]]; then
+    if [[ "$JIRA_BOOL_SCAN_COMMIT_BODY" == "1" ]]; then
       KEY_ARRAY+=("${COMMIT_KEYS[@]}")
     else
       echo "Issue keys found in commit, but not scanning commit body"
@@ -60,7 +60,7 @@ getIssueKeys() {
   if [[ ${#KEY_ARRAY[@]} -eq 0 ]]; then
     message="No issue keys found in branch"
     dbgmessage="  Branch: $CIRCLE_BRANCH\n"
-    if [[ "$ORB_BOOL_SCAN_COMMIT_BODY" == '1' ]]; then
+    if [[ "$JIRA_BOOL_SCAN_COMMIT_BODY" == '1' ]]; then
       message+=" or commit message"
       dbgmessage+="  Commit: $COMMIT_MESSAGE\n"
     fi
@@ -80,9 +80,9 @@ getIssueKeys() {
 postForge() {
   FORGE_PAYLOAD=$1
   echo "Posting payload to CircleCI for Jira Forge app"
-  FORGE_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${ORB_VAL_JIRA_WEBHOOK_URL}" \
+  FORGE_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${JIRA_VAL_JIRA_WEBHOOK_URL}" \
     -H "Content-Type: application/json" \
-    -H "Authorization: ${ORB_VAL_JIRA_OIDC_TOKEN}" \
+    -H "Authorization: ${JIRA_VAL_JIRA_OIDC_TOKEN}" \
     -d "${FORGE_PAYLOAD}")
   HTTP_BODY=$(echo "$FORGE_RESPONSE" | sed -e '$d')
   HTTP_STATUS=$(echo "$FORGE_RESPONSE" | tail -n 1)
@@ -102,30 +102,30 @@ postForge() {
 
 # Verify any values that need to be present before continuing
 verifyVars() {
-  MSG=$(printf "OIDC Token: %s\nWebhook URL: %s\nEnvironment: %s\n" "$ORB_VAL_JIRA_OIDC_TOKEN" "$ORB_VAL_JIRA_WEBHOOK_URL" "$ORB_VAL_ENVIRONMENT")
+  MSG=$(printf "OIDC Token: %s\nWebhook URL: %s\nEnvironment: %s\n" "$JIRA_VAL_JIRA_OIDC_TOKEN" "$JIRA_VAL_JIRA_WEBHOOK_URL" "$JIRA_VAL_ENVIRONMENT")
   log "$MSG"
 
-  if [[ -z "$ORB_VAL_JIRA_OIDC_TOKEN" ]]; then
+  if [[ -z "$JIRA_VAL_JIRA_OIDC_TOKEN" ]]; then
     echo "'oidc_token' parameter is required"
     exit 1
   fi
 
-  if ! [[ "$ORB_VAL_JIRA_WEBHOOK_URL" =~ ^https:\/\/([a-zA-Z0-9.-]+\.[A-Za-z]{2,6})(:[0-9]{1,5})?(\/.*)?$ ]]; then
+  if ! [[ "$JIRA_VAL_JIRA_WEBHOOK_URL" =~ ^https:\/\/([a-zA-Z0-9.-]+\.[A-Za-z]{2,6})(:[0-9]{1,5})?(\/.*)?$ ]]; then
     echo "'webhook_url' must be a valid URL"
-    echo "  Value: $ORB_VAL_JIRA_WEBHOOK_URL"
+    echo "  Value: $JIRA_VAL_JIRA_WEBHOOK_URL"
     exit 1
   fi
 
-  if [[ -z "$ORB_VAL_ENVIRONMENT" ]]; then
+  if [[ -z "$JIRA_VAL_ENVIRONMENT" ]]; then
     echo "'environment' parameter is required"
-    echo "  Value: $ORB_VAL_ENVIRONMENT"
+    echo "  Value: $JIRA_VAL_ENVIRONMENT"
     exit 1
   fi
 
 }
 
 log() {
-  if [[ "$ORB_DEBUG_ENABLE" == "true" ]]; then
+  if [[ "$JIRA_DEBUG_ENABLE" == "true" ]]; then
     {
       echo ""
       echo "$1"
@@ -137,30 +137,30 @@ log() {
 
 
 # Sanetize the input
-# ORB_VAL_JOB_TYPE - Enum string value of 'build' or 'deploy'
-# ORB_BOOL_DEBUG - 1 = true, 0 = false
-if [[ "$ORB_BOOL_DEBUG" -eq 1 ]]; then
-  ORB_DEBUG_ENABLE="true"
+# JIRA_VAL_JOB_TYPE - Enum string value of 'build' or 'deploy'
+# JIRA_BOOL_DEBUG - 1 = true, 0 = false
+if [[ "$JIRA_BOOL_DEBUG" -eq 1 ]]; then
+  JIRA_DEBUG_ENABLE="true"
 else
-  ORB_DEBUG_ENABLE="false"
+  JIRA_DEBUG_ENABLE="false"
 fi
-ORB_LOG_LEVEL=$([ "$ORB_DEBUG_ENABLE" = true ] && echo "log" || echo "error")
-ORB_VAL_ENVIRONMENT=$(circleci env subst "${ORB_VAL_ENVIRONMENT}")
-ORB_VAL_ENVIRONMENT_TYPE=$(circleci env subst "${ORB_VAL_ENVIRONMENT_TYPE}")
-ORB_VAL_STATE_PATH=$(circleci env subst "${ORB_VAL_STATE_PATH}")
-ORB_VAL_SERVICE_ID=$(circleci env subst "${ORB_VAL_SERVICE_ID}")
-ORB_VAL_ISSUE_REGEXP=$(circleci env subst "${ORB_VAL_ISSUE_REGEXP}")
-ORB_VAL_JIRA_OIDC_TOKEN=$(circleci env subst "${ORB_VAL_JIRA_OIDC_TOKEN}")
-ORB_VAL_JIRA_WEBHOOK_URL=$(circleci env subst "${ORB_VAL_JIRA_WEBHOOK_URL}")
+JIRA_LOG_LEVEL=$([ "$JIRA_DEBUG_ENABLE" = true ] && echo "log" || echo "error")
+JIRA_VAL_ENVIRONMENT=$(circleci env subst "${JIRA_VAL_ENVIRONMENT}")
+JIRA_VAL_ENVIRONMENT_TYPE=$(circleci env subst "${JIRA_VAL_ENVIRONMENT_TYPE}")
+JIRA_VAL_STATE_PATH=$(circleci env subst "${JIRA_VAL_STATE_PATH}")
+JIRA_VAL_SERVICE_ID=$(circleci env subst "${JIRA_VAL_SERVICE_ID}")
+JIRA_VAL_ISSUE_REGEXP=$(circleci env subst "${JIRA_VAL_ISSUE_REGEXP}")
+JIRA_VAL_JIRA_OIDC_TOKEN=$(circleci env subst "${JIRA_VAL_JIRA_OIDC_TOKEN}")
+JIRA_VAL_JIRA_WEBHOOK_URL=$(circleci env subst "${JIRA_VAL_JIRA_WEBHOOK_URL}")
 # Add the log parameter to the URL
-ORB_VAL_JIRA_WEBHOOK_URL="${ORB_VAL_JIRA_WEBHOOK_URL}?verbosity=${ORB_LOG_LEVEL}"
-# ORB_BOOL_SCAN_COMMIT_BODY - 1 = true, 0 = false
-# ORB_VAL_PIPELINE_ID - pipeline id
-# ORB_VAL_PIPELINE_NUMBER - pipeline number
+JIRA_VAL_JIRA_WEBHOOK_URL="${JIRA_VAL_JIRA_WEBHOOK_URL}?verbosity=${JIRA_LOG_LEVEL}"
+# JIRA_BOOL_SCAN_COMMIT_BODY - 1 = true, 0 = false
+# JIRA_VAL_PIPELINE_ID - pipeline id
+# JIRA_VAL_PIPELINE_NUMBER - pipeline number
 TIME_EPOCH=$(date +%s)
 TIME_STAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
-# ORB_DEBUG_TEST_COMMIT is only used in testing
-COMMIT_MESSAGE=$(git show -s --format='%s' "${ORB_DEBUG_TEST_COMMIT:-$CIRCLE_SHA1}")
+# JIRA_DEBUG_TEST_COMMIT is only used in testing
+COMMIT_MESSAGE=$(git show -s --format='%s' "${JIRA_DEBUG_TEST_COMMIT:-$CIRCLE_SHA1}")
 JIRA_BUILD_STATUS=$(cat /tmp/circleci_jira_status)
 PROJECT_VCS=""
 PROJECT_SLUG=""
@@ -175,17 +175,17 @@ JIRA_ISSUE_KEYS=() # Set in getIssueKeys
 ## Variables are set directly rather than returned to improve error handling
 getVCS
 getSlug
-JIRA_PIPELINE_URL="https://app.circleci.com/pipelines/$PROJECT_SLUG/$ORB_VAL_PIPELINE_NUMBER"
+JIRA_PIPELINE_URL="https://app.circleci.com/pipelines/$PROJECT_SLUG/$JIRA_VAL_PIPELINE_NUMBER"
 
 # Export variables for use in envsubst
-export ORB_VAL_ENVIRONMENT
-export ORB_VAL_ENVIRONMENT_TYPE
-export ORB_VAL_STATE_PATH
-export ORB_VAL_SERVICE_ID
-export ORB_VAL_ISSUE_REGEXP
-export ORB_BOOL_SCAN_COMMIT_BODY
-export ORB_VAL_PIPELINE_ID
-export ORB_VAL_PIPELINE_NUMBER
+export JIRA_VAL_ENVIRONMENT
+export JIRA_VAL_ENVIRONMENT_TYPE
+export JIRA_VAL_STATE_PATH
+export JIRA_VAL_SERVICE_ID
+export JIRA_VAL_ISSUE_REGEXP
+export JIRA_BOOL_SCAN_COMMIT_BODY
+export JIRA_VAL_PIPELINE_ID
+export JIRA_VAL_PIPELINE_NUMBER
 export TIME_EPOCH
 export TIME_STAMP
 export COMMIT_MESSAGE
@@ -193,31 +193,31 @@ export JIRA_BUILD_STATUS
 export PROJECT_SLUG
 export JIRA_PIPELINE_URL
 export JIRA_ISSUE_KEYS
-export ORB_VAL_JIRA_WEBHOOK_URL
+export JIRA_VAL_JIRA_WEBHOOK_URL
 export PROJECT_VCS
 export PROJECT_SLUG
 export OBR_DEBUG_ENABLE
-export ORB_LOG_LEVEL
+export JIRA_LOG_LEVEL
 
 
 main() {
-  if [[ "$ORB_DEBUG_ENABLE" == "true" ]]; then
+  if [[ "$JIRA_DEBUG_ENABLE" == "true" ]]; then
     echo "Debugging Enabled"
   fi
   verifyVars
   getIssueKeys
-  printf "Notification type: %s\n" "$ORB_VAL_JOB_TYPE"
-  if [[ "$ORB_VAL_JOB_TYPE" == 'build' ]]; then
+  printf "Notification type: %s\n" "$JIRA_VAL_JOB_TYPE"
+  if [[ "$JIRA_VAL_JOB_TYPE" == 'build' ]]; then
     PAYLOAD=$(echo "$JSON_BUILD_PAYLOAD" | circleci env subst)
     PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.builds[0].issueKeys = $keys' <<< "$PAYLOAD")
     postForge "$PAYLOAD"
-  elif [[ "$ORB_VAL_JOB_TYPE" == 'deployment' ]]; then
+  elif [[ "$JIRA_VAL_JOB_TYPE" == 'deployment' ]]; then
     PAYLOAD=$(echo "$JSON_DEPLOYMENT_PAYLOAD" | circleci env subst)
     # Set the issue keys array
     PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.deployments[0].associations |= map(if .associationType == "issueIdOrKeys" then .values = $keys else . end)' <<< "$PAYLOAD")
     # Set ServiceID
-    PAYLOAD=$(jq --arg serviceId "$ORB_VAL_SERVICE_ID" '.deployments[0].associations |= map(if .associationType == "serviceIdOrKeys" then .values = [$serviceId] else . end)' <<< "$PAYLOAD")
-    if [[ "$ORB_DEBUG_ENABLE" == "true" ]]; then
+    PAYLOAD=$(jq --arg serviceId "$JIRA_VAL_SERVICE_ID" '.deployments[0].associations |= map(if .associationType == "serviceIdOrKeys" then .values = [$serviceId] else . end)' <<< "$PAYLOAD")
+    if [[ "$JIRA_DEBUG_ENABLE" == "true" ]]; then
       MSG=$(printf "PAYLOAD: %s\n" "$PAYLOAD")
       log "$MSG"
     fi
