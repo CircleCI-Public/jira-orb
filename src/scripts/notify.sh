@@ -79,6 +79,7 @@ getIssueKeys() {
 # Post the payload to the CircleCI for Jira Forge app
 postForge() {
   FORGE_PAYLOAD=$1
+  COUNT=${2:-1}
   echo "Posting payload to CircleCI for Jira Forge app"
   FORGE_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${JIRA_VAL_JIRA_WEBHOOK_URL}" \
     -H "Content-Type: application/json" \
@@ -96,6 +97,13 @@ postForge() {
     echo "  HTTP Status: $HTTP_STATUS"
     echo "  Errors:"
     echo "$JIRA_ERRORS" | jq '.'
+  fi
+  if [[ "$HTTP_STATUS" -gt 299 && "$HTTP_STATUS" -lt 399 ]] && [[ "$COUNT" -lt 5 ]]; then
+    echo "Retrying... ($((COUNT + 1)))"
+    sleep 3
+    postForge "$FORGE_PAYLOAD" "$((COUNT + 1))"
+  elif [[ "$HTTP_STATUS" -gt 399 ]]; then
+    echo "Exiting..."
     exit 1
   fi
 }
