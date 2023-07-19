@@ -69,7 +69,7 @@ workflows:
             - jira/notify:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
-                scan_commit_body: true
+                scan_commit: true
                 debug: true
       - test:
           name: test-scan-branch
@@ -84,7 +84,7 @@ workflows:
             - jira/notify:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
-                scan_commit_body: true
+                scan_commit: true
                 debug: true
           filters: *filters
       - test:

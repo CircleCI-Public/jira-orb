@@ -49,18 +49,18 @@ getIssueKeys() {
   # Get commit keys (if enabled)
   if [[ "$COMMIT_MESSAGE" =~ $JIRA_VAL_ISSUE_REGEXP ]]; then
     COMMIT_KEYS=("${BASH_REMATCH[1]}")
-    if [[ "$JIRA_BOOL_SCAN_COMMIT_BODY" == "1" ]]; then
+    if [[ "$JIRA_BOOL_SCAN_COMMIT" == "1" ]]; then
       KEY_ARRAY+=("${COMMIT_KEYS[@]}")
     else
       echo "Issue keys found in commit, but not scanning commit body"
-      echo "If you want to scan the commit body, set the 'scan_commit_body' parameter to true"
+      echo "If you want to scan the commit body, set the 'scan_commit' parameter to true"
     fi
   fi
   # Exit if no keys found
   if [[ ${#KEY_ARRAY[@]} -eq 0 ]]; then
     message="No issue keys found in branch"
     dbgmessage="  Branch: $CIRCLE_BRANCH\n"
-    if [[ "$JIRA_BOOL_SCAN_COMMIT_BODY" == '1' ]]; then
+    if [[ "$JIRA_BOOL_SCAN_COMMIT" == '1' ]]; then
       message+=" or commit message"
       dbgmessage+="  Commit: $COMMIT_MESSAGE\n"
     fi
@@ -153,7 +153,7 @@ JIRA_VAL_JIRA_OIDC_TOKEN=$(circleci env subst "${JIRA_VAL_JIRA_OIDC_TOKEN}")
 JIRA_VAL_JIRA_WEBHOOK_URL=$(circleci env subst "${JIRA_VAL_JIRA_WEBHOOK_URL}")
 # Add the log parameter to the URL
 JIRA_VAL_JIRA_WEBHOOK_URL="${JIRA_VAL_JIRA_WEBHOOK_URL}?verbosity=${JIRA_LOG_LEVEL}"
-# JIRA_BOOL_SCAN_COMMIT_BODY - 1 = true, 0 = false
+# JIRA_BOOL_SCAN_COMMIT - 1 = true, 0 = false
 # JIRA_VAL_PIPELINE_ID - pipeline id
 # JIRA_VAL_PIPELINE_NUMBER - pipeline number
 TIME_EPOCH=$(date +%s)
@@ -182,7 +182,7 @@ export JIRA_VAL_ENVIRONMENT_TYPE
 export JIRA_VAL_STATE_PATH
 export JIRA_VAL_SERVICE_ID
 export JIRA_VAL_ISSUE_REGEXP
-export JIRA_BOOL_SCAN_COMMIT_BODY
+export JIRA_BOOL_SCAN_COMMIT
 export JIRA_VAL_PIPELINE_ID
 export JIRA_VAL_PIPELINE_NUMBER
 export TIME_EPOCH
