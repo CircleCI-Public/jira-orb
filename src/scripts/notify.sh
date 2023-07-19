@@ -15,8 +15,8 @@ getVCS() {
   REGEXP="com\/([A-Za-z]+)\/"
   if [[ $CIRCLE_BUILD_URL =~ $REGEXP ]]; then
     PROJECT_VCS="${BASH_REMATCH[1]}"
-    else
-      echo "Unable to determine VCS type"
+  else
+    echo "Unable to determine VCS type"
   fi
 }
 
@@ -44,7 +44,7 @@ getIssueKeys() {
   KEY_ARRAY=()
   # Get branch keys
   if [[ "$CIRCLE_BRANCH" =~ $JIRA_VAL_ISSUE_REGEXP ]]; then
-    KEY_ARRAY+=( "${BASH_REMATCH[1]}")
+    KEY_ARRAY+=("${BASH_REMATCH[1]}")
   fi
   # Get commit keys (if enabled)
   if [[ "$COMMIT_MESSAGE" =~ $JIRA_VAL_ISSUE_REGEXP ]]; then
@@ -130,11 +130,10 @@ log() {
       echo ""
       echo "$1"
       echo ""
-    } >> $JIRA_LOGFILE
+    } >>$JIRA_LOGFILE
     printf "\n  #### DEBUG ####\n  %s\n  ###############\n\n" "$1"
   fi
 }
-
 
 # Sanetize the input
 # JIRA_VAL_JOB_TYPE - Enum string value of 'build' or 'deploy'
@@ -199,7 +198,6 @@ export PROJECT_SLUG
 export OBR_DEBUG_ENABLE
 export JIRA_LOG_LEVEL
 
-
 main() {
   if [[ "$JIRA_DEBUG_ENABLE" == "true" ]]; then
     echo "Debugging Enabled"
@@ -209,14 +207,14 @@ main() {
   printf "Notification type: %s\n" "$JIRA_VAL_JOB_TYPE"
   if [[ "$JIRA_VAL_JOB_TYPE" == 'build' ]]; then
     PAYLOAD=$(echo "$JSON_BUILD_PAYLOAD" | circleci env subst)
-    PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.builds[0].issueKeys = $keys' <<< "$PAYLOAD")
+    PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.builds[0].issueKeys = $keys' <<<"$PAYLOAD")
     postForge "$PAYLOAD"
   elif [[ "$JIRA_VAL_JOB_TYPE" == 'deployment' ]]; then
     PAYLOAD=$(echo "$JSON_DEPLOYMENT_PAYLOAD" | circleci env subst)
     # Set the issue keys array
-    PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.deployments[0].associations |= map(if .associationType == "issueIdOrKeys" then .values = $keys else . end)' <<< "$PAYLOAD")
+    PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.deployments[0].associations |= map(if .associationType == "issueIdOrKeys" then .values = $keys else . end)' <<<"$PAYLOAD")
     # Set ServiceID
-    PAYLOAD=$(jq --arg serviceId "$JIRA_VAL_SERVICE_ID" '.deployments[0].associations |= map(if .associationType == "serviceIdOrKeys" then .values = [$serviceId] else . end)' <<< "$PAYLOAD")
+    PAYLOAD=$(jq --arg serviceId "$JIRA_VAL_SERVICE_ID" '.deployments[0].associations |= map(if .associationType == "serviceIdOrKeys" then .values = [$serviceId] else . end)' <<<"$PAYLOAD")
     if [[ "$JIRA_DEBUG_ENABLE" == "true" ]]; then
       MSG=$(printf "PAYLOAD: %s\n" "$PAYLOAD")
       log "$MSG"
