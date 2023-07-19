@@ -56,7 +56,21 @@ workflows:
   test-deploy:
     jobs:
       # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
-      # Test your orb's commands in a custom job and test your orb's jobs directly as a part of this workflow.
+      - test:
+          name: test-ignore_errors
+          context: CPE_JIRA_TESTING
+          mock:
+            - run:
+                name: Manually set commit message for test
+                command: |
+                  git add .
+                  git commit -m "test: ${CIRCLE_JOB} [CFJ-2]"
+            - jira/notify:
+                pipeline_id: "<< pipeline.id >>"
+                pipeline_number: "<< pipeline.number >>"
+                scan_commit: true
+                ignore_errors: true
+                webhook_url: https://circleci.com/ # This is an invalid URL, so the post will fail, but be ignored.
       - test:
           name: test-scan-commit
           context: CPE_JIRA_TESTING
@@ -70,6 +84,7 @@ workflows:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
                 scan_commit: true
+                ignore_errors: false
                 debug: true
       - test:
           name: test-scan-branch
@@ -85,6 +100,7 @@ workflows:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
                 scan_commit: true
+                ignore_errors: false
                 debug: true
           filters: *filters
       - test:
@@ -100,6 +116,7 @@ workflows:
             - jira/notify:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
+                ignore_errors: false
                 service_id: "123"
                 job_type: deployment
                 environment: staging
