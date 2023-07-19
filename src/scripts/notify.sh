@@ -101,7 +101,10 @@ postForge() {
   log "$MSG"
 
   # Check for errors
-  JIRA_ERRORS="$(echo "$HTTP_BODY" | jq -r '..|select(type == "object" and (has("errors") or has("error")))|(.errors // .error)')"
+  if ! JIRA_ERRORS="$(echo "$HTTP_BODY" | jq -r '..|select(type == "object" and (has("errors") or has("error")))|(.errors // .error)')";then
+    echo "Error parsing response"
+    errorOut 1
+  fi
   if [[ "$HTTP_STATUS" -gt 299 || ${#JIRA_ERRORS} -gt 0 ]]; then
     printf "\nError posting payload to CircleCI for Jira Forge app\n"
     echo "  HTTP Status: $HTTP_STATUS"
@@ -224,14 +227,23 @@ main() {
   printf "Notification type: %s\n" "$JIRA_VAL_JOB_TYPE"
   if [[ "$JIRA_VAL_JOB_TYPE" == 'build' ]]; then
     PAYLOAD=$(echo "$JSON_BUILD_PAYLOAD" | circleci env subst)
-    PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.builds[0].issueKeys = $keys' <<<"$PAYLOAD")
+    if ! PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.builds[0].issueKeys = $keys' <<<"$PAYLOAD");then
+      echo "Error setting issue keys"
+      errorOut 1
+    fi
     postForge "$PAYLOAD"
   elif [[ "$JIRA_VAL_JOB_TYPE" == 'deployment' ]]; then
     PAYLOAD=$(echo "$JSON_DEPLOYMENT_PAYLOAD" | circleci env subst)
     # Set the issue keys array
-    PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.deployments[0].associations |= map(if .associationType == "issueIdOrKeys" then .values = $keys else . end)' <<<"$PAYLOAD")
+    if ! PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.deployments[0].associations |= map(if .associationType == "issueIdOrKeys" then .values = $keys else . end)' <<<"$PAYLOAD"); then
+      echo "Error setting issue keys"
+      errorOut 1
+    fi
     # Set ServiceID
-    PAYLOAD=$(jq --arg serviceId "$JIRA_VAL_SERVICE_ID" '.deployments[0].associations |= map(if .associationType == "serviceIdOrKeys" then .values = [$serviceId] else . end)' <<<"$PAYLOAD")
+    if ! PAYLOAD=$(jq --arg serviceId "$JIRA_VAL_SERVICE_ID" '.deployments[0].associations |= map(if .associationType == "serviceIdOrKeys" then .values = [$serviceId] else . end)' <<<"$PAYLOAD"); then
+      echo "Error setting service id"
+      errorOut 1
+    fi
     if [[ "$JIRA_DEBUG_ENABLE" == "true" ]]; then
       MSG=$(printf "PAYLOAD: %s\n" "$PAYLOAD")
       log "$MSG"
