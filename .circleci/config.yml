@@ -25,5 +25,6 @@ workflows:
           pipeline_number: << pipeline.number >>
           vcs_type: << pipeline.project.type >>
           orb_name: jira
-          requires: [orb-tools/lint, orb-tools/review, orb-tools/pack, shellcheck/check]
+          requires:
+            [orb-tools/lint, orb-tools/review, orb-tools/pack, shellcheck/check]
           filters: *filters
