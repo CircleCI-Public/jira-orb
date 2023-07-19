@@ -38,6 +38,11 @@ jobs:
     environment:
       JIRA_DEBUG_TEST_COMMIT: "HEAD"
     parameters:
+      validate:
+        type: boolean
+        default: true
+        description: |
+          Validate the notification has been sent
       mock:
         type: steps
         default: []
@@ -47,10 +52,13 @@ jobs:
       - checkout
       - git_reset
       - steps: << parameters.mock >>
-      - run:
-          name: Verify notification was sent
-          command: |
-            grep -q "sent=true" /tmp/circleci_jira.log
+      - when:
+          condition: << parameters.validate >>
+          steps:
+            - run:
+                name: Verify notification was sent
+                command: |
+                  grep -q "sent=true" /tmp/circleci_jira.log
 
 workflows:
   test-deploy:
@@ -59,6 +67,7 @@ workflows:
       - test:
           name: test-ignore_errors
           context: CPE_JIRA_TESTING
+          validate: false
           mock:
             - run:
                 name: Manually set commit message for test
