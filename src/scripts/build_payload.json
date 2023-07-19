@@ -2,7 +2,7 @@
   "builds": [
     {
       "schemaVersion": "1.0",
-      "pipelineId": "${ORB_VAL_PIPELINE_ID}",
+      "pipelineId": "${JIRA_VAL_PIPELINE_ID}",
       "buildNumber": "${CIRCLE_BUILD_NUM}",
       "updateSequenceNumber": "${TIME_EPOCH}",
       "displayName": "${CIRCLE_PROJECT_REPONAME} #${CIRCLE_BUILD_NUM}",

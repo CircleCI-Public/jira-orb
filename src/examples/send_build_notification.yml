@@ -1,0 +1,21 @@
+description: >
+  Send build notifications to Jira as a part of your CI config.
+  Add the notify command as the last step of your job.
+  By default, the branch name will be used to identify the Jira issue.
+usage:
+  version: 2.1
+  orbs:
+    jira: circleci/jira@2.0
+    node: circleci/node@5.1
+  jobs:
+    build:
+      executor: node/default
+      steps:
+        - checkout
+        - node/install-packages
+        - run:
+            name: Test app
+            command: npm test
+        - jira/notify:
+            pipeline_id: "<< pipeline.id >>"
+            pipeline_number: "<< pipeline.number >>"

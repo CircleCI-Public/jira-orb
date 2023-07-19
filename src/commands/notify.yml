@@ -62,18 +62,18 @@ steps:
       command: <<include(scripts/detect.sh)>>
   - run:
       environment:
-        ORB_VAL_JOB_TYPE: <<parameters.job_type>>
-        ORB_VAL_ENVIRONMENT: <<parameters.environment>>
-        ORB_VAL_ENVIRONMENT_TYPE: <<parameters.environment_type>>
-        ORB_VAL_SERVICE_ID: <<parameters.service_id>>
-        ORB_VAL_ISSUE_REGEXP: <<parameters.issue_regexp>>
-        ORB_BOOL_SCAN_COMMIT_BODY: <<parameters.scan_commit_body>>
-        ORB_VAL_PIPELINE_ID: <<parameters.pipeline_id>>
-        ORB_VAL_PIPELINE_NUMBER: <<parameters.pipeline_number>>
-        ORB_VAL_JIRA_WEBHOOK_URL: <<parameters.webhook_url>>
-        ORB_VAL_JIRA_OIDC_TOKEN: <<parameters.oidc_token>>
+        JIRA_VAL_JOB_TYPE: <<parameters.job_type>>
+        JIRA_VAL_ENVIRONMENT: <<parameters.environment>>
+        JIRA_VAL_ENVIRONMENT_TYPE: <<parameters.environment_type>>
+        JIRA_VAL_SERVICE_ID: <<parameters.service_id>>
+        JIRA_VAL_ISSUE_REGEXP: <<parameters.issue_regexp>>
+        JIRA_BOOL_SCAN_COMMIT_BODY: <<parameters.scan_commit_body>>
+        JIRA_VAL_PIPELINE_ID: <<parameters.pipeline_id>>
+        JIRA_VAL_PIPELINE_NUMBER: <<parameters.pipeline_number>>
+        JIRA_VAL_JIRA_WEBHOOK_URL: <<parameters.webhook_url>>
+        JIRA_VAL_JIRA_OIDC_TOKEN: <<parameters.oidc_token>>
         JSON_BUILD_PAYLOAD: <<include(scripts/build_payload.json)>>
         JSON_DEPLOYMENT_PAYLOAD: <<include(scripts/deployment_payload.json)>>
-        ORB_BOOL_DEBUG: <<parameters.debug>>
+        JIRA_BOOL_DEBUG: <<parameters.debug>>
       name: Notify Jira
       command: <<include(scripts/notify.sh)>>
