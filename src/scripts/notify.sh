@@ -53,9 +53,12 @@ getIssueKeys() {
   local KEY_ARRAY=()
 
   # Parse keys from branch and commit message
-  local "BRANCH_KEYS"="$(parseKeys "$CIRCLE_BRANCH")"
-  local "COMMIT_KEYS"="$(parseKeys "$COMMIT_MESSAGE")"
-  local "TAG_KEYS"="$(getTagKeys)"
+  local BRANCH_KEYS
+  BRANCH_KEYS="$(parseKeys "$CIRCLE_BRANCH")"
+  local COMMIT_KEYS
+  COMMIT_KEYS="$(parseKeys "$COMMIT_MESSAGE")"
+  local TAG_KEYS
+  TAG_KEYS="$(getTagKeys)"
 
   # Check if the parsed keys are not empty before adding to the array.
   [[ -n "$BRANCH_KEYS" ]] && KEY_ARRAY+=("$BRANCH_KEYS")
