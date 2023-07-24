@@ -88,7 +88,7 @@ getIssueKeys() {
     local message="No issue keys found in branch, commit message, or tag"
     local dbgmessage="  Branch: $CIRCLE_BRANCH\n"
     dbgmessage+="  Commit: $COMMIT_MESSAGE\n"
-    dbgmessage+="  Tag: $(getTags)\n"
+    dbgmessage+="  Tag: $(git tag --points-at HEAD -l --format='%(tag) %(subject)' )\n"
 
     echo "$message"
     echo -e "$dbgmessage"
