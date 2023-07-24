@@ -39,42 +39,52 @@ getSlug() {
   fi
 }
 
-# Sets the JIRA_ISSUE_KEYS or prints an error
-getIssueKeys() {
-  KEY_ARRAY=()
-  # Get branch keys
-  if [[ "$CIRCLE_BRANCH" =~ $JIRA_VAL_ISSUE_REGEXP ]]; then
+# Accepts a string and returns an array of keys
+parseKeys() {
+  local KEY_ARRAY=()
+  if [[ "$1" =~ $JIRA_VAL_ISSUE_REGEXP ]]; then
     KEY_ARRAY+=("${BASH_REMATCH[1]}")
   fi
-  # Get commit keys (if enabled)
-  if [[ "$COMMIT_MESSAGE" =~ $JIRA_VAL_ISSUE_REGEXP ]]; then
-    COMMIT_KEYS=("${BASH_REMATCH[1]}")
-    if [[ "$JIRA_BOOL_SCAN_COMMIT_BODY" == "1" ]]; then
-      KEY_ARRAY+=("${COMMIT_KEYS[@]}")
-    else
-      echo "Issue keys found in commit, but not scanning commit body"
-      echo "If you want to scan the commit body, set the 'scan_commit_body' parameter to true"
-    fi
-  fi
+  echo "${KEY_ARRAY[@]}"
+}
+
+# Sets the JIRA_ISSUE_KEYS or prints an error
+getIssueKeys() {
+  local KEY_ARRAY=()
+
+  # Parse keys from branch and commit message
+  local "BRANCH_KEYS"="$(parseKeys "$CIRCLE_BRANCH")"
+  local "COMMIT_KEYS"="$(parseKeys "$COMMIT_MESSAGE")"
+
+  # Check if the parsed keys are not empty before adding to the array.
+  [[ -n "$BRANCH_KEYS" ]] && KEY_ARRAY+=("$BRANCH_KEYS")
+  [[ -n "$COMMIT_KEYS" ]] && KEY_ARRAY+=("$COMMIT_KEYS")
+
   # Exit if no keys found
   if [[ ${#KEY_ARRAY[@]} -eq 0 ]]; then
-    message="No issue keys found in branch"
-    dbgmessage="  Branch: $CIRCLE_BRANCH\n"
-    if [[ "$JIRA_BOOL_SCAN_COMMIT_BODY" == '1' ]]; then
+    local message="No issue keys found in branch"
+    local dbgmessage="  Branch: $CIRCLE_BRANCH\n"
+
+    [[ "$JIRA_BOOL_SCAN_COMMIT_BODY" == '1' ]] && {
       message+=" or commit message"
       dbgmessage+="  Commit: $COMMIT_MESSAGE\n"
-    fi
+    }
+
     echo "$message"
     echo -e "$dbgmessage"
     printf "\nSkipping Jira notification\n\n"
     exit 0
   fi
+
   # Set the JIRA_ISSUE_KEYS variable to JSON array
   JIRA_ISSUE_KEYS=$(printf '%s\n' "${KEY_ARRAY[@]}" | jq -R . | jq -s .)
   echo "Issue keys found:"
   echo "$JIRA_ISSUE_KEYS" | jq -r '.[]'
+  
+  # Export JIRA_ISSUE_KEYS for use in other scripts or sessions
   export JIRA_ISSUE_KEYS
 }
+
 
 # Post the payload to the CircleCI for Jira Forge app
 postForge() {
