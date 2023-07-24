@@ -25,10 +25,6 @@ parameters:
     description: Override the default project key regexp if your project keys follow a different format. Your key must be in the [1] capture group.
     default: \[([A-Z]{2,30}-[0-9]+)\]
     type: string
-  scan_commit:
-    description: If enabled, the orb will scan the commit body for issue keys and add them to the list of issues to be updated. Only the latest commit in the push will be scanned.
-    default: true
-    type: boolean
   pipeline_id:
     description: Pass in the pipeline id via CircleCI pipeline parameters. This must be specified manually. Refer to usage example.
     type: string
@@ -71,7 +67,6 @@ steps:
         JIRA_VAL_ENVIRONMENT_TYPE: <<parameters.environment_type>>
         JIRA_VAL_SERVICE_ID: <<parameters.service_id>>
         JIRA_VAL_ISSUE_REGEXP: <<parameters.issue_regexp>>
-        JIRA_BOOL_SCAN_COMMIT: <<parameters.scan_commit>>
         JIRA_VAL_PIPELINE_ID: <<parameters.pipeline_id>>
         JIRA_VAL_PIPELINE_NUMBER: <<parameters.pipeline_number>>
         JIRA_VAL_JIRA_WEBHOOK_URL: <<parameters.webhook_url>>

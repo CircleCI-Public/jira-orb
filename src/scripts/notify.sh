@@ -88,7 +88,8 @@ getIssueKeys() {
     local message="No issue keys found in branch, commit message, or tag"
     local dbgmessage="  Branch: $CIRCLE_BRANCH\n"
     dbgmessage+="  Commit: $COMMIT_MESSAGE\n"
-    dbgmessage+="  Tag: $(git tag --points-at HEAD -l --format='%(tag) %(subject)' )\n"
+    dbgmessage+="  Tag: $(getTags)\n"
+
     echo "$message"
     echo -e "$dbgmessage"
     printf "\nSkipping Jira notification\n\n"
@@ -215,7 +216,6 @@ JIRA_VAL_JIRA_OIDC_TOKEN=$(circleci env subst "${JIRA_VAL_JIRA_OIDC_TOKEN}")
 JIRA_VAL_JIRA_WEBHOOK_URL=$(circleci env subst "${JIRA_VAL_JIRA_WEBHOOK_URL}")
 # Add the log parameter to the URL
 JIRA_VAL_JIRA_WEBHOOK_URL="${JIRA_VAL_JIRA_WEBHOOK_URL}?verbosity=${JIRA_LOG_LEVEL}"
-# JIRA_BOOL_SCAN_COMMIT - 1 = true, 0 = false
 # JIRA_VAL_PIPELINE_ID - pipeline id
 # JIRA_VAL_PIPELINE_NUMBER - pipeline number
 TIME_EPOCH=$(date +%s)
@@ -244,7 +244,6 @@ export JIRA_VAL_ENVIRONMENT_TYPE
 export JIRA_VAL_STATE_PATH
 export JIRA_VAL_SERVICE_ID
 export JIRA_VAL_ISSUE_REGEXP
-export JIRA_BOOL_SCAN_COMMIT
 export JIRA_VAL_PIPELINE_ID
 export JIRA_VAL_PIPELINE_NUMBER
 export TIME_EPOCH
