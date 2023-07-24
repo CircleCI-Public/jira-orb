@@ -186,6 +186,7 @@ getTagKeys() {
   local TAG_KEYS=()
   local TAGS
   TAGS="$(getTags)"
+  [[ "$JIRA_DEBUG_ENABLE" == "true" ]] && { echo "Tags: $TAGS";}
   for TAG in $TAGS; do
     local ANNOTATION
     ANNOTATION="$(git tag -l -n1 "$TAG")"
