@@ -57,6 +57,7 @@ getIssueKeys() {
   BRANCH_KEYS="$(parseKeys "$CIRCLE_BRANCH")"
   local COMMIT_KEYS
   COMMIT_KEYS="$(parseKeys "$COMMIT_MESSAGE")"
+  log "GETTING TAG KEYS"
   local TAG_KEYS
   TAG_KEYS="$(getTagKeys)"
 
@@ -70,7 +71,6 @@ getIssueKeys() {
     local dbgmessage="  Branch: $CIRCLE_BRANCH\n"
     dbgmessage+="  Commit: $COMMIT_MESSAGE\n"
     dbgmessage+="  Tag: $(git tag --points-at HEAD -l --format='%(tag) %(subject)' )\n"
-
     echo "$message"
     echo -e "$dbgmessage"
     printf "\nSkipping Jira notification\n\n"
@@ -149,6 +149,7 @@ log() {
 getTags() {
   local TAG_ARRAY=()
   GIT_TAG=$(git tag --points-at HEAD)
+  log "GIT_TAG: $GIT_TAG"
   [[ -n  "$GIT_TAG" ]] && TAG_ARRAY+=("$GIT_TAG")
   echo "${TAG_ARRAY[@]}"
 }
@@ -157,7 +158,7 @@ getTagKeys() {
   local TAG_KEYS=()
   local TAGS
   TAGS="$(getTags)"
-  [[ "$JIRA_DEBUG_ENABLE" == "true" ]] && { echo "Tags: $TAGS";}
+  log "TAGS: $TAGS"
   for TAG in $TAGS; do
     local ANNOTATION
     ANNOTATION="$(git tag -l -n1 "$TAG")"
