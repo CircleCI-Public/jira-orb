@@ -90,11 +90,10 @@ workflows:
           context: CPE_JIRA_TESTING
           mock:
             - run:
-                name: Override CIRCLE_BRANCH
+                name: Give Tag
                 command: |
-                  echo "CIRCLE_BRANCH=feat/[CFJ-2]" >> $BASH_ENV
                   git commit --allow-empty -m "test: ${CIRCLE_JOB}"
-                  
+                  git tag -a v1.0.0 -m "Jira: [CFJ-2]"
             - jira/notify:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
