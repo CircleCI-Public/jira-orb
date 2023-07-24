@@ -174,6 +174,29 @@ log() {
   fi
 }
 
+getTags() {
+  local TAG_ARRAY=()
+  GIT_TAG=$(git tag --points-at HEAD)
+  [[ -n  "$GIT_TAG" ]] && TAG_ARRAY+=("$GIT_TAG")
+  echo "${TAG_ARRAY[@]}"
+}
+
+getTagKeys() {
+  local TAG_KEYS=()
+  local TAGS
+  TAGS="$(getTags)"
+  for TAG in $TAGS; do
+    local ANNOTATION
+    ANNOTATION="$(git tag -l -n1 "$TAG")"
+    [[ "$JIRA_DEBUG_ENABLE" == "true" ]] && {
+      MSG=$(printf "Tag: %s\nAnnotation: %s\n" "$TAG" "$ANNOTATION")
+      log "$MSG"
+    }
+    TAG_KEYS+=("$(parseKeys "$ANNOTATION")")
+  done
+  echo "${TAG_KEYS[@]}"
+}
+
 # Sanetize the input
 # JIRA_VAL_JOB_TYPE - Enum string value of 'build' or 'deploy'
 # JIRA_BOOL_DEBUG - 1 = true, 0 = false
