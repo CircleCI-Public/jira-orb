@@ -55,6 +55,7 @@ getIssueKeys() {
   # Parse keys from branch and commit message
   local "BRANCH_KEYS"="$(parseKeys "$CIRCLE_BRANCH")"
   local "COMMIT_KEYS"="$(parseKeys "$COMMIT_MESSAGE")"
+  local "TAG_KEYS"="$(getTagKeys)"
 
   # Check if the parsed keys are not empty before adding to the array.
   [[ -n "$BRANCH_KEYS" ]] && KEY_ARRAY+=("$BRANCH_KEYS")
@@ -143,6 +144,29 @@ log() {
     } >>$JIRA_LOGFILE
     printf "\n  #### DEBUG ####\n  %s\n  ###############\n\n" "$1"
   fi
+}
+
+getTags() {
+  local TAG_ARRAY=()
+  GIT_TAG=$(git tag --points-at HEAD)
+  [[ -n  "$GIT_TAG" ]] && TAG_ARRAY+=("$GIT_TAG")
+  echo "${TAG_ARRAY[@]}"
+}
+
+getTagKeys() {
+  local TAG_KEYS=()
+  local TAGS
+  TAGS="$(getTags)"
+  for TAG in $TAGS; do
+    local ANNOTATION
+    ANNOTATION="$(git tag -l -n1 "$TAG")"
+    [[ "$JIRA_DEBUG_ENABLE" == "true" ]] && {
+      MSG=$(printf "Tag: %s\nAnnotation: %s\n" "$TAG" "$ANNOTATION")
+      log "$MSG"
+    }
+    TAG_KEYS+=("$(parseKeys "$ANNOTATION")")
+  done
+  echo "${TAG_KEYS[@]}"
 }
 
 # Sanetize the input
