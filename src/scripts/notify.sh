@@ -168,7 +168,7 @@ log() {
       echo "$1"
       echo ""
     } >>$JIRA_LOGFILE
-    printf "\n  #### DEBUG ####\n  %s\n  ###############\n\n" "$1"
+    printf "\n  #### DEBUG ####\n  %s\n  ###############\n\n" "$1" 2>&1 >&2
   fi
 }
 
