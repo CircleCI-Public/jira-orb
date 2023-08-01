@@ -42,9 +42,12 @@ getSlug() {
 # Accepts a string and returns an array of keys
 parseKeys() {
   local KEY_ARRAY=()
-  if [[ "$1" =~ $JIRA_VAL_ISSUE_REGEXP ]]; then
+  while [[ "$1" =~ $JIRA_VAL_ISSUE_REGEXP ]]; do
     KEY_ARRAY+=("${BASH_REMATCH[1]}")
-  fi
+    # Remove the matched part from the string so we can continue matching the rest
+    local rest="${1#*"${BASH_REMATCH[0]}"}"
+    set -- "$rest"
+  done
   echo "${KEY_ARRAY[@]}"
 }
 
@@ -64,7 +67,6 @@ getIssueKeys() {
   # Check if the parsed keys are not empty before adding to the array.
   [[ -n "$BRANCH_KEYS" ]] && KEY_ARRAY+=("$BRANCH_KEYS")
   [[ -n "$COMMIT_KEYS" ]] && KEY_ARRAY+=("$COMMIT_KEYS")
-  [[ -n "$TAG_KEYS" ]] && KEY_ARRAY+=("$TAG_KEYS")
 
   # Exit if no keys found
   if [[ ${#KEY_ARRAY[@]} -eq 0 ]]; then
@@ -163,6 +165,7 @@ getTagKeys() {
   for TAG in $TAGS; do
     local ANNOTATION
     ANNOTATION="$(git tag -l -n1 "$TAG")"
+    [ -n "$ANNOTATION" ] || continue
     [[ "$JIRA_DEBUG_ENABLE" == "true" ]] && {
       MSG=$(printf "Tag: %s\nAnnotation: %s\n" "$TAG" "$ANNOTATION")
       log "$MSG"
