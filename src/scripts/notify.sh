@@ -67,12 +67,17 @@ remove_duplicates() {
   UNIQUE_KEYS=()
   
   for value in "$@"; do
-    if [[ ! -v "seen[$value]" ]]; then
-      UNIQUE_KEYS+=("$value")
-      seen["$value"]=1
-    fi
+    # Splitting value into array by space, considering space-separated keys in a single string
+    for single_value in $value; do
+      TRIMMED_VALUE="$(echo -e "${single_value}" | tr -d '[:space:]')"
+
+      # If the trimmed value has not been seen before, add it to the UNIQUE_KEYS array and mark it as seen
+      if [[ ! -v seen["$TRIMMED_VALUE"] ]]; then
+        UNIQUE_KEYS+=("$TRIMMED_VALUE")
+        seen["$TRIMMED_VALUE"]=1
+      fi
+    done
   done
-  log "UNIQUE_KEYS: ${UNIQUE_KEYS[*]}"
 }
 
 # Sets the JIRA_ISSUE_KEYS or prints an error
