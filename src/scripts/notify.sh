@@ -64,6 +64,7 @@ getIssueKeys() {
   # Check if the parsed keys are not empty before adding to the array.
   [[ -n "$BRANCH_KEYS" ]] && KEY_ARRAY+=("$BRANCH_KEYS")
   [[ -n "$COMMIT_KEYS" ]] && KEY_ARRAY+=("$COMMIT_KEYS")
+  [[ -n "$TAG_KEYS" ]] && KEY_ARRAY+=("$TAG_KEYS")
 
   # Exit if no keys found
   if [[ ${#KEY_ARRAY[@]} -eq 0 ]]; then
