@@ -77,7 +77,6 @@ workflows:
             - jira/notify:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
-                scan_commit: true
                 ignore_errors: true
                 webhook_url: https://circleci.com/ # This is an invalid URL, so the post will fail, but be ignored.
       - test:
