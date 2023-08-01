@@ -83,6 +83,8 @@ getIssueKeys() {
   [[ -n "$COMMIT_KEYS" ]] && KEY_ARRAY+=("$COMMIT_KEYS")
   [[ -n "$TAG_KEYS" ]] && KEY_ARRAY+=("$TAG_KEYS")
 
+  log "KEY_ARRAY: ${KEY_ARRAY[*]}"
+
   # Remove duplicates
   remove_duplicates "${KEY_ARRAY[@]}"
   KEY_ARRAY=("${UNIQUE_KEYS[@]}")
