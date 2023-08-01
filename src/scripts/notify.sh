@@ -83,7 +83,9 @@ getIssueKeys() {
   [[ -n "$COMMIT_KEYS" ]] && KEY_ARRAY+=("$COMMIT_KEYS")
   [[ -n "$TAG_KEYS" ]] && KEY_ARRAY+=("$TAG_KEYS")
 
-  log "KEY_ARRAY: ${KEY_ARRAY[*]}"
+  log "BRANCH_KEYS: $BRANCH_KEYS"
+  log "COMMIT_KEYS: $COMMIT_KEYS"
+  log "TAG_KEYS: $TAG_KEYS"
 
   # Remove duplicates
   remove_duplicates "${KEY_ARRAY[@]}"
