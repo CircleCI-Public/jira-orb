@@ -175,9 +175,7 @@ log() {
 getTags() {
   local TAG_ARRAY=()
   GIT_TAG=$(git tag --points-at HEAD)
-  log "GIT_TAG: $GIT_TAG"
   [[ -n  "$GIT_TAG" ]] && TAG_ARRAY+=("$GIT_TAG")
-  log "TAG_ARRAY in getTags: ${TAG_ARRAY[*]}"
   echo "${TAG_ARRAY[@]}"
 }
 
