@@ -85,6 +85,7 @@ getIssueKeys() {
   # Remove duplicates
   remove_duplicates "${KEY_ARRAY[@]}"
   KEY_ARRAY=("${UNIQUE_KEYS[@]}")
+  log "KEY_ARRAY: ${KEY_ARRAY[*]}"
 
   # Exit if no keys found
   if [[ ${#KEY_ARRAY[@]} -eq 0 ]]; then
