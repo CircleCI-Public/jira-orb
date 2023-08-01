@@ -61,6 +61,20 @@ parseKeys() {
   echo "${KEY_ARRAY[@]}"
 }
 
+remove_duplicates() {
+  declare -A seen
+  # Declare UNIQUE_KEYS as a global variable
+  UNIQUE_KEYS=()
+  
+  for value in "$@"; do
+    if [[ ! -v "seen[$value]" ]]; then
+      UNIQUE_KEYS+=("$value")
+      seen["$value"]=1
+    fi
+  done
+  log "UNIQUE_KEYS: ${UNIQUE_KEYS[*]}"
+}
+
 # Sets the JIRA_ISSUE_KEYS or prints an error
 getIssueKeys() {
   local KEY_ARRAY=()
@@ -73,11 +87,15 @@ getIssueKeys() {
   log "GETTING TAG KEYS"
   local TAG_KEYS
   TAG_KEYS="$(getTagKeys)"
-  log "TAG KEYS: $TAG_KEYS"
 
   # Check if the parsed keys are not empty before adding to the array.
   [[ -n "$BRANCH_KEYS" ]] && KEY_ARRAY+=("$BRANCH_KEYS")
   [[ -n "$COMMIT_KEYS" ]] && KEY_ARRAY+=("$COMMIT_KEYS")
+  [[ -n "$TAG_KEYS" ]] && KEY_ARRAY+=("$TAG_KEYS")
+
+  # Remove duplicates
+  remove_duplicates "${KEY_ARRAY[@]}"
+  KEY_ARRAY=("${UNIQUE_KEYS[@]}")
 
   # Remove duplicates
   remove_duplicates "${KEY_ARRAY[@]}"
