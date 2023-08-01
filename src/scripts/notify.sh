@@ -97,10 +97,6 @@ getIssueKeys() {
   remove_duplicates "${KEY_ARRAY[@]}"
   KEY_ARRAY=("${UNIQUE_KEYS[@]}")
 
-  # Remove duplicates
-  remove_duplicates "${KEY_ARRAY[@]}"
-  KEY_ARRAY=("${UNIQUE_KEYS[@]}")
-
   # Exit if no keys found
   if [[ ${#KEY_ARRAY[@]} -eq 0 ]]; then
     local message="No issue keys found in branch, commit message, or tag"
