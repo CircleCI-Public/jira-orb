@@ -73,11 +73,11 @@ getIssueKeys() {
   log "GETTING TAG KEYS"
   local TAG_KEYS
   TAG_KEYS="$(getTagKeys)"
+  log "TAG KEYS: $TAG_KEYS"
 
   # Check if the parsed keys are not empty before adding to the array.
   [[ -n "$BRANCH_KEYS" ]] && KEY_ARRAY+=("$BRANCH_KEYS")
   [[ -n "$COMMIT_KEYS" ]] && KEY_ARRAY+=("$COMMIT_KEYS")
-  [[ -n "$TAG_KEYS" ]] && KEY_ARRAY+=("$TAG_KEYS")
 
   # Remove duplicates
   remove_duplicates "${KEY_ARRAY[@]}"
@@ -186,14 +186,10 @@ getTagKeys() {
   local TAG_KEYS=()
   local TAGS
   TAGS="$(getTags)"
-  log "TAGS: $TAGS"
   for TAG in $TAGS; do
     local ANNOTATION
     ANNOTATION="$(git tag -l -n1 "$TAG")"
-    [[ "$JIRA_DEBUG_ENABLE" == "true" ]] && {
-      MSG=$(printf "Tag: %s\nAnnotation: %s\n" "$TAG" "$ANNOTATION")
-      log "$MSG"
-    }
+    [ -n "$ANNOTATION" ] || continue
     TAG_KEYS+=("$(parseKeys "$ANNOTATION")")
   done
   echo "${TAG_KEYS[@]}"
