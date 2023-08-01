@@ -62,6 +62,7 @@ remove_duplicates() {
       seen["$value"]=1
     fi
   done
+  log "UNIQUE_KEYS: ${UNIQUE_KEYS[*]}"
 }
 
 # Sets the JIRA_ISSUE_KEYS or prints an error
@@ -85,7 +86,6 @@ getIssueKeys() {
   # Remove duplicates
   remove_duplicates "${KEY_ARRAY[@]}"
   KEY_ARRAY=("${UNIQUE_KEYS[@]}")
-  log "KEY_ARRAY: ${KEY_ARRAY[*]}"
 
   # Exit if no keys found
   if [[ ${#KEY_ARRAY[@]} -eq 0 ]]; then
