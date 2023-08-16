@@ -2,6 +2,7 @@ description: >
   Send build notifications to Jira as a part of your CI config.
   Add the notify command as the last step of your job.
   By default, the branch name will be used to identify the Jira issue.
+  A 'JIRA_WEBHOOK_URL' environment variable must be provided.
 usage:
   version: 2.1
   orbs:
@@ -19,3 +20,8 @@ usage:
         - jira/notify:
             pipeline_id: "<< pipeline.id >>"
             pipeline_number: "<< pipeline.number >>"
+  workflows:
+    build-workflow:
+      jobs:
+        - build:
+            context: JIRA_WEBHOOK
