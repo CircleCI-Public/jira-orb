@@ -1,5 +1,6 @@
 description: >
   Send pipeline job statuses to Jira as a part of your CI config.
+  A 'JIRA_WEBHOOK_URL' environment variable must be provided.
 usage:
   version: 2.1
   orbs:
@@ -36,12 +37,14 @@ usage:
     main:
       jobs:
         - build:
+            context: JIRA_WEBHOOK
             filters:
               tags:
                 only: /.*/
         - deploy:
             requires:
               - build
+            context: JIRA_WEBHOOK
             filters:
               branches:
                 ignore: /.*/
