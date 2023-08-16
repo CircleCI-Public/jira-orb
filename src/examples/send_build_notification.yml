@@ -17,6 +17,9 @@ usage:
         - run:
             name: Test app
             command: npm test
+        - run:
+            name: Trigger a demo build
+            command: echo "Build triggered"
         - jira/notify:
             pipeline_id: "<< pipeline.id >>"
             pipeline_number: "<< pipeline.number >>"
