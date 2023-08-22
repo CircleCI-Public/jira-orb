@@ -73,7 +73,7 @@ workflows:
                 name: Manually set commit message for test
                 command: |
                   git add .
-                  git commit -m "test: ${CIRCLE_JOB} [CFJ-2]"
+                  git commit -m "test: ${CIRCLE_JOB} CFJ-2"
             - jira/notify:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
@@ -87,7 +87,7 @@ workflows:
                 name: Manually set commit message for test
                 command: |
                   git add .
-                  git commit -m "test: ${CIRCLE_JOB} [CFJ-2]"
+                  git commit -m "test: ${CIRCLE_JOB} CFJ-2"
             - jira/notify:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
@@ -99,9 +99,9 @@ workflows:
             - run:
                 name: Override CIRCLE_BRANCH
                 command: |
-                  echo "CIRCLE_BRANCH=feat/[CFJ-2]" >> $BASH_ENV
+                  echo "CIRCLE_BRANCH=feat/CFJ-2" >> $BASH_ENV
                   git commit --allow-empty -m "test: ${CIRCLE_JOB}"
-                  
+
             - jira/notify:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
@@ -115,7 +115,7 @@ workflows:
                 name: Give Tag
                 command: |
                   git commit --allow-empty -m "test: ${CIRCLE_JOB}"
-                  git tag -a v1.0.0 -m "Jira: [CFJ-2]"
+                  git tag -a v1.0.0 -m "Jira: CFJ-2"
             - jira/notify:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
