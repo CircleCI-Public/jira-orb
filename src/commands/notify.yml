@@ -23,7 +23,7 @@ parameters:
     default: "${JIRA_SERVICE_ID}"
   issue_regexp:
     description: Override the default project key regexp if your project keys follow a different format. Your key must be in the [1] capture group.
-    default: \[([A-Z]{2,30}-[0-9]+)\]
+    default: ([A-Z]{2,30}-[0-9]+)
     type: string
   pipeline_id:
     description: Pass in the pipeline id via CircleCI pipeline parameters. This must be specified manually. Refer to usage example.
