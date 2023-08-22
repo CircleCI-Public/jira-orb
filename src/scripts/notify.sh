@@ -169,7 +169,7 @@ verifyVars() {
   fi
 
   if ! [[ "$JIRA_VAL_JIRA_WEBHOOK_URL" =~ ^https:\/\/([a-zA-Z0-9.-]+\.[A-Za-z]{2,6})(:[0-9]{1,5})?(\/.*)?$ ]]; then
-    echo "'webhook_url' must be a valid URL"
+    echo "  Please check the value of the 'webhook_url' parameter and ensure it contains a valid URL or a valid environment variable"
     echo "  Value: $JIRA_VAL_JIRA_WEBHOOK_URL"
     exit 1 # Critical error, do not skip
   fi
