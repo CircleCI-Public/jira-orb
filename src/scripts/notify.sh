@@ -38,7 +38,7 @@ getSlug() {
       PROJECT_SLUG="${BASH_REMATCH[1]}"
     fi
   else
-    REGEXP="com\/([A-Za-z]+\/[A-Za-z0-9-]+\/[A-Za-z0-9-]+)\/"
+    REGEXP="com\/([A-Za-z]+\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)\/"
     if [[ $CIRCLE_BUILD_URL =~ $REGEXP ]]; then
       PROJECT_SLUG="${BASH_REMATCH[1]}"
     fi
