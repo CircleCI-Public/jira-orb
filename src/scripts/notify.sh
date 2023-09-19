@@ -72,7 +72,7 @@ remove_duplicates() {
       TRIMMED_VALUE="$(echo -e "${single_value}" | tr -d '[:space:]')"
 
       # If the trimmed value has not been seen before, add it to the UNIQUE_KEYS array and mark it as seen
-      if [[ ! -v seen["$TRIMMED_VALUE"] ]]; then
+      if [[ -z seen["$TRIMMED_VALUE"] ]]; then
         UNIQUE_KEYS+=("$TRIMMED_VALUE")
         seen["$TRIMMED_VALUE"]=1
       fi
