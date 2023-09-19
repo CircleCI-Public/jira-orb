@@ -31,13 +31,26 @@ commands:
             rm -rf .git
             git init
 
+executors:
+  linux-docker:
+    docker:
+      - image: cimg/base:current
+  macos:
+    macos:
+      xcode: 15.0.0
+      resource_class: macos.x86.medium.gen2
+
 jobs:
   test:
-    docker:
-        - image: cimg/base:current
+    executor: << parameters.executor >>
     environment:
       JIRA_DEBUG_TEST_COMMIT: "HEAD"
     parameters:
+      executor:
+        type: executor
+        default: linux-docker
+        description: |
+          The executor to use for the job.
       validate:
         type: boolean
         default: true
@@ -65,7 +78,13 @@ workflows:
     jobs:
       # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
       - test:
-          name: test-ignore_errors
+          name: test-ignore_errors-<<matrix.executor>>
+          matrix:
+            alias: test-ignore_errors
+            parameters:
+              executor:
+                - linux-docker
+                - macos
           context: CPE_JIRA_TESTING
           validate: false
           mock:
@@ -80,7 +99,13 @@ workflows:
                 ignore_errors: true
                 webhook_url: https://circleci.com/ # This is an invalid URL, so the post will fail, but be ignored.
       - test:
-          name: test-scan-commit
+          name: test-scan-commit-<<matrix.executor>>
+          matrix:
+            alias: test-scan-commit
+            parameters:
+              executor:
+                - linux-docker
+                - macos
           context: CPE_JIRA_TESTING
           mock:
             - run:
@@ -93,7 +118,13 @@ workflows:
                 pipeline_number: "<< pipeline.number >>"
                 debug: true
       - test:
-          name: test-scan-branch
+          name: test-scan-branch-<<matrix.executor>>
+          matrix:
+            alias: test-scan-branch
+            parameters:
+              executor:
+                - linux-docker
+                - macos
           context: CPE_JIRA_TESTING
           mock:
             - run:
@@ -108,7 +139,13 @@ workflows:
                 debug: true
           filters: *filters
       - test:
-          name: test-deploy
+          name: test-deploy-<<matrix.executor>>
+          matrix:
+            alias: test-deploy
+            parameters:
+              executor:
+                - linux-docker
+                - macos
           context: CPE_JIRA_TESTING
           mock:
             - run:
@@ -136,6 +173,7 @@ workflows:
           # Ensure this job requires all test jobs and the pack job.
           requires:
             - orb-tools/pack
+            - test-ignore_errors
             - test-scan-commit
             - test-scan-branch
             - test-deploy
