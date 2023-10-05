@@ -16,7 +16,6 @@ workflows:
       - orb-tools/pack:
           filters: *filters
       - orb-tools/review:
-          exclude: "RC006"
           filters: *filters
       - shellcheck/check:
           filters: *filters
@@ -24,7 +23,6 @@ workflows:
       - orb-tools/continue:
           pipeline_number: << pipeline.number >>
           vcs_type: << pipeline.project.type >>
-          orb_name: jira
-          requires:
-            [orb-tools/lint, orb-tools/review, orb-tools/pack, shellcheck/check]
+          orb_name: <orb-name>
+          requires: [orb-tools/lint, orb-tools/pack, orb-tools/review, shellcheck/check]
           filters: *filters
