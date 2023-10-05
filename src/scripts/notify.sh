@@ -1,5 +1,19 @@
 #!/bin/bash
 
+checkShell() {
+  log "Checking Shell"
+  if [[ "$(uname -s)" == "Darwin" && "$SHELL" != "/bin/zsh" ]]; then
+    log "MacOS with bash detected, switching to ZSH"
+    if [ "$EUID" = 0 ]; then export SUDO=""; else export SUDO="sudo"; fi
+    CURRENT_USER=$(whoami)
+    $SUDO chsh -s /bin/zsh "$CURRENT_USER"
+    log "Switched shell to ZSH"
+    log "Validate Shell: $SHELL"
+  else 
+    log "Current MacOS Shell is set to ZSH"
+  fi
+}
+
 # create log file
 JIRA_LOGFILE=/tmp/circleci_jira.log
 touch $JIRA_LOGFILE
@@ -65,7 +79,7 @@ remove_duplicates() {
   declare -A seen
   # Declare UNIQUE_KEYS as a global variable
   UNIQUE_KEYS=()
-  
+
   for value in "$@"; do
     # Splitting value into array by space, considering space-separated keys in a single string
     for single_value in $value; do
@@ -107,7 +121,7 @@ getIssueKeys() {
     local message="No issue keys found in branch, commit message, or tag"
     local dbgmessage="  Branch: $CIRCLE_BRANCH\n"
     dbgmessage+="  Commit: $COMMIT_MESSAGE\n"
-    dbgmessage+="  Tag: $(git tag --points-at HEAD -l --format='%(tag) %(subject)' )\n"
+    dbgmessage+="  Tag: $(git tag --points-at HEAD -l --format='%(tag) %(subject)')\n"
     echo "$message"
     echo -e "$dbgmessage"
     printf "\nSkipping Jira notification\n\n"
@@ -118,11 +132,10 @@ getIssueKeys() {
   JIRA_ISSUE_KEYS=$(printf '%s\n' "${KEY_ARRAY[@]}" | jq -R . | jq -s .)
   echo "Issue keys found:"
   echo "$JIRA_ISSUE_KEYS" | jq -r '.[]'
-  
+
   # Export JIRA_ISSUE_KEYS for use in other scripts or sessions
   export JIRA_ISSUE_KEYS
 }
-
 
 # Post the payload to the CircleCI for Jira Forge app
 postForge() {
@@ -139,7 +152,7 @@ postForge() {
   log "$MSG"
 
   # Check for errors
-  if ! JIRA_ERRORS="$(echo "$HTTP_BODY" | jq -r '..|select(type == "object" and (has("errors") or has("error")))|(.errors // .error)')";then
+  if ! JIRA_ERRORS="$(echo "$HTTP_BODY" | jq -r '..|select(type == "object" and (has("errors") or has("error")))|(.errors // .error)')"; then
     echo "Error parsing response"
     errorOut 1
   fi
@@ -196,7 +209,7 @@ log() {
 getTags() {
   local TAG_ARRAY=()
   GIT_TAG=$(git tag --points-at HEAD)
-  [[ -n  "$GIT_TAG" ]] && TAG_ARRAY+=("$GIT_TAG")
+  [[ -n "$GIT_TAG" ]] && TAG_ARRAY+=("$GIT_TAG")
   echo "${TAG_ARRAY[@]}"
 }
 
@@ -275,15 +288,19 @@ export OBR_DEBUG_ENABLE
 export JIRA_LOG_LEVEL
 
 main() {
+  echo "Starting Jira Notify Step"
   if [[ "$JIRA_DEBUG_ENABLE" == "true" ]]; then
     echo "Debugging Enabled"
   fi
+  log "Shell: $SHELL"
+  log "$(uname -s)"
+  checkShell
   verifyVars
   getIssueKeys
   printf "Notification type: %s\n" "$JIRA_VAL_JOB_TYPE"
   if [[ "$JIRA_VAL_JOB_TYPE" == 'build' ]]; then
     PAYLOAD=$(echo "$JSON_BUILD_PAYLOAD" | circleci env subst)
-    if ! PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.builds[0].issueKeys = $keys' <<<"$PAYLOAD");then
+    if ! PAYLOAD=$(jq --argjson keys "$JIRA_ISSUE_KEYS" '.builds[0].issueKeys = $keys' <<<"$PAYLOAD"); then
       echo "Error setting issue keys"
       errorOut 1
     fi
