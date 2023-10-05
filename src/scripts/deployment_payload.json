@@ -25,8 +25,8 @@
         "url": "${JIRA_PIPELINE_URL}"
       },
       "environment": {
-        "id": "${JIRA_VAL_ENVIRONMENT}",
-        "displayName": "${CIRCLE_JOB}::${JIRA_VAL_PIPELINE_ID}",
+        "id": "${CIRCLE_JOB}::${JIRA_VAL_PIPELINE_ID}",
+        "displayName": "${JIRA_VAL_ENVIRONMENT}",
         "type": "${JIRA_VAL_ENVIRONMENT_TYPE}"
       },
       "schemaVersion": "1.0"
