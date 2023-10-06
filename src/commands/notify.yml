@@ -77,4 +77,5 @@ steps:
         JIRA_BOOL_IGNORE_ERRORS: <<parameters.ignore_errors>>
         JIRA_SCRIPT_NOTIFY: <<include(scripts/notify.sh)>>
       name: Notify Jira
+      when: always
       command: <<include(scripts/run_notify.sh)>>
