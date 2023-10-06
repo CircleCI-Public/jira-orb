@@ -75,5 +75,6 @@ steps:
         JSON_DEPLOYMENT_PAYLOAD: <<include(scripts/deployment_payload.json)>>
         JIRA_BOOL_DEBUG: <<parameters.debug>>
         JIRA_BOOL_IGNORE_ERRORS: <<parameters.ignore_errors>>
+        JIRA_SCRIPT_NOTIFY: <<include(scripts/notify.sh)>>
       name: Notify Jira
-      command: <<include(scripts/notify.sh)>>
+      command: <<include(scripts/run_notify.sh)>>
