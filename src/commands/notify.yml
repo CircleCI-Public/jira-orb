@@ -78,3 +78,4 @@ steps:
         JIRA_SCRIPT_NOTIFY: <<include(scripts/notify.sh)>>
       name: Notify Jira
       command: <<include(scripts/run_notify.sh)>>
+      when: always
