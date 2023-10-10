@@ -72,7 +72,19 @@ jobs:
                 name: Verify notification was sent
                 command: |
                   grep -q "sent=true" /tmp/circleci_jira.log
-
+  test-no-git:
+    executor: << parameters.executor >>
+    parameters:
+      executor:
+        type: executor
+        default: linux-docker
+        description: |
+          The executor to use for the job.
+    steps:
+      - jira/notify:
+          pipeline_id: "<< pipeline.id >>"
+          pipeline_number: "<< pipeline.number >>"
+          debug: true
 workflows:
   test-deploy:
     jobs:
@@ -163,6 +175,16 @@ workflows:
                 environment_type: staging
                 debug: true
           filters: *filters
+      - test-no-git:
+          matrix:
+            alias: test-deploy
+            parameters:
+              executor:
+                - linux-docker
+                - macos
+          context: CPE_JIRA_TESTING
+
+
       # The orb must be re-packed for publishing, and saved to the workspace.
       - orb-tools/pack:
           filters: *release-filters
@@ -177,6 +199,7 @@ workflows:
             - test-scan-commit
             - test-scan-branch
             - test-deploy
+            - test-no-git
           context: orb-publisher
           github_token: GHI_TOKEN
           filters: *release-filters
