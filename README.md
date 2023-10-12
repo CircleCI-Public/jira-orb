@@ -6,11 +6,25 @@
 
 ---
 
-## Resources
+Connect your CircleCI pipelines to Jira. Track builds and deployments in real-time with automated updates to Jira issues on every push.
 
-[CircleCI Orb Registry Page](https://circleci.com/developer/orbs/orb/circleci/jira) - The official registry page of this orb for all versions, executors, commands, and jobs described.
+## Getting started
 
-[CircleCI Orb Docs](https://circleci.com/docs/orb-intro/#section=configuration) - Docs for using, creating, and publishing CircleCI Orbs.
+The Jira Orb is available on the [CircleCI Orb Registry](https://circleci.com/developer/orbs/orb/circleci/jira), communicates with Jira via the [CircleCI for Jira app](https://marketplace.atlassian.com/apps/1215946/circleci-for-jira?tab=overview&hosting=cloud). To use the Jira Orb, you must have the CircleCI for Jira app installed in your Jira instance. Setup is simple as authentication is handled by [OIDC](https://circleci.com/docs/openid-connect-tokens/), no tokens!
+
+For step-by-step instructions on how to install and configure the Jira Orb, see the [CircleCI Jira Documentation](https://circleci.com/docs/jira-plugin/).
+
+> ⚠️ **If you are upgrading from <2.0.0**: This is a _new_ integration with alternative authentication methods and updated Atlassian Forge app. Please follow the documentation as a replacement for the previous integration. You will need to update the Atlassian app in your Jira instance to the newest version.
+
+### Resources
+
+[CircleCI Jira Documentation](https://circleci.com/docs/jira-plugin/)
+
+[Atlassian Marketplace - CircleCI for Jira app](https://marketplace.atlassian.com/apps/1215946/circleci-for-jira?tab=overview&hosting=cloud)
+
+[CircleCI Jira Orb](https://circleci.com/developer/orbs/orb/circleci/jira)
+
+
 
 ### How to Contribute
 
