@@ -65,7 +65,7 @@ remove_duplicates() {
   declare -A seen
   # Declare UNIQUE_KEYS as a global variable
   UNIQUE_KEYS=()
-  
+
   for value in "$@"; do
     # Splitting value into array by space, considering space-separated keys in a single string
     for single_value in $value; do
@@ -121,7 +121,7 @@ getIssueKeys() {
   JIRA_ISSUE_KEYS=$(printf '%s\n' "${KEY_ARRAY[@]}" | jq -R . | jq -s .)
   echo "Issue keys found:"
   echo "$JIRA_ISSUE_KEYS" | jq -r '.[]'
-  
+
   # Export JIRA_ISSUE_KEYS for use in other scripts or sessions
   export JIRA_ISSUE_KEYS
 }
@@ -238,9 +238,8 @@ JIRA_VAL_JIRA_WEBHOOK_URL="${JIRA_VAL_JIRA_WEBHOOK_URL}?verbosity=${JIRA_LOG_LEV
 # JIRA_VAL_PIPELINE_NUMBER - pipeline number
 TIME_EPOCH=$(date +%s)
 TIME_STAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
-# JIRA_DEBUG_TEST_COMMIT is only used in testing
-COMMIT_MESSAGE=$(git show -s --format='%s' "${JIRA_DEBUG_TEST_COMMIT:-$CIRCLE_SHA1}")
-COMMIT_BODY=$(git show -s --format='%b' "${JIRA_DEBUG_TEST_COMMIT:-$CIRCLE_SHA1}")
+COMMIT_MESSAGE=$(git show -s --format='%s' "${CIRCLE_SHA1}^..${CIRCLE_SHA1}")
+COMMIT_BODY=$(git show -s --format='%b' "${CIRCLE_SHA1}^..${CIRCLE_SHA1}")
 JIRA_BUILD_STATUS=$(cat /tmp/circleci_jira_status)
 PROJECT_VCS=""
 PROJECT_SLUG=""
