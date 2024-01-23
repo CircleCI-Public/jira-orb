@@ -1,182 +1,42 @@
 version: 2.1
 orbs:
-  # Your orb will be automatically injected here during the pipeline.
-  # Reference your orb's jobs and commands below as they will exist when built.
-  orb-tools: circleci/orb-tools@12.0
-  # The orb definition is intentionally not included here. It will be injected into the pipeline.
-  jira: {}
+  jira-orb: terawatt-infrastructure/jira-orb@dev:<<pipeline.git.revision>>
+  orb-tools: circleci/orb-tools@11.5
 
-# Use this tag to ensure test jobs always run,
-# even though the downstream publish job will only run on release tags.
 filters: &filters
   tags:
     only: /.*/
 
-# Filter for release tags.
-release-filters: &release-filters
-  branches:
-    ignore: /.*/
-  tags:
-    only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
-
-commands:
-  git_reset:
-    description: Bypass git setup for testing
-    steps:
-      - run:
-          name: Set git config
-          command: |
-            git config --global user.email "test@example.com"
-            git config --global user.name "Test User"
-            rm -rf .git
-            git init
-
-executors:
-  linux-docker:
+jobs:
+  # Create a job to test the commands of your orbs.
+  # You may want to add additional validation steps to ensure the commands are working as expected.
+  command-tests:
     docker:
       - image: cimg/base:current
-  macos:
-    macos:
-      xcode: 15.0.0
-      resource_class: macos.x86.medium.gen2
-
-jobs:
-  test:
-    executor: << parameters.executor >>
-    environment:
-      JIRA_DEBUG_TEST_COMMIT: "HEAD"
-    parameters:
-      executor:
-        type: executor
-        default: linux-docker
-        description: |
-          The executor to use for the job.
-      validate:
-        type: boolean
-        default: true
-        description: |
-          Validate the notification has been sent
-      mock:
-        type: steps
-        default: []
-        description: |
-          Mock any test data and trigger a notification here.
     steps:
       - checkout
-      - git_reset
-      - steps: << parameters.mock >>
-      - when:
-          condition: << parameters.validate >>
-          steps:
-            - run:
-                name: Verify notification was sent
-                command: |
-                  grep -q "sent=true" /tmp/circleci_jira.log
-
+      # Run your orb's commands to validate them.
+      - jira-orb/generate-tag
 workflows:
   test-deploy:
     jobs:
       # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
-      - test:
-          name: test-ignore_errors-<<matrix.executor>>
-          matrix:
-            alias: test-ignore_errors
-            parameters:
-              executor:
-                - linux-docker
-                - macos
-          context: CPE_JIRA_TESTING
-          validate: false
-          mock:
-            - run:
-                name: Manually set commit message for test
-                command: |
-                  git add .
-                  git commit -m "test: ${CIRCLE_JOB} CFJ-2"
-            - jira/notify:
-                pipeline_id: "<< pipeline.id >>"
-                pipeline_number: "<< pipeline.number >>"
-                ignore_errors: true
-                webhook_url: https://circleci.com/ # This is an invalid URL, so the post will fail, but be ignored.
-      - test:
-          name: test-scan-commit-<<matrix.executor>>
-          matrix:
-            alias: test-scan-commit
-            parameters:
-              executor:
-                - linux-docker
-                - macos
-          context: CPE_JIRA_TESTING
-          mock:
-            - run:
-                name: Manually set commit message for test
-                command: |
-                  git add .
-                  git commit -m "test: ${CIRCLE_JOB} CFJ-2"
-            - jira/notify:
-                pipeline_id: "<< pipeline.id >>"
-                pipeline_number: "<< pipeline.number >>"
-                debug: true
-      - test:
-          name: test-scan-branch-<<matrix.executor>>
-          matrix:
-            alias: test-scan-branch
-            parameters:
-              executor:
-                - linux-docker
-                - macos
-          context: CPE_JIRA_TESTING
-          mock:
-            - run:
-                name: Override CIRCLE_BRANCH
-                command: |
-                  echo "CIRCLE_BRANCH=feat/CFJ-2" >> $BASH_ENV
-                  git commit --allow-empty -m "test: ${CIRCLE_JOB}"
-
-            - jira/notify:
-                pipeline_id: "<< pipeline.id >>"
-                pipeline_number: "<< pipeline.number >>"
-                debug: true
+      - command-tests:
           filters: *filters
-      - test:
-          name: test-deploy-<<matrix.executor>>
-          matrix:
-            alias: test-deploy
-            parameters:
-              executor:
-                - linux-docker
-                - macos
-          context: CPE_JIRA_TESTING
-          mock:
-            - run:
-                name: Give Tag
-                command: |
-                  git commit --allow-empty -m "test: ${CIRCLE_JOB}"
-                  git tag -a v1.0.0 -m "Jira: CFJ-2"
-            - jira/notify:
-                pipeline_id: "<< pipeline.id >>"
-                pipeline_number: "<< pipeline.number >>"
-                ignore_errors: false
-                service_id: "123"
-                job_type: deployment
-                environment: staging
-                environment_type: staging
-                debug: true
-          filters: *filters
-      # The orb must be re-packed for publishing, and saved to the workspace.
       - orb-tools/pack:
-          filters: *release-filters
+          filters: *filters
       - orb-tools/publish:
-          orb_name: circleci/jira
-          vcs_type: << pipeline.project.type >>
-          pub_type: production
-          # Ensure this job requires all test jobs and the pack job.
+          orb-name: terawatt-infrastructure/jira-orb
+          vcs-type: << pipeline.project.type >>
+          pub-type: production
           requires:
             - orb-tools/pack
-            - test-ignore_errors
-            - test-scan-commit
-            - test-scan-branch
-            - test-deploy
-          context: orb-publisher
-          github_token: GHI_TOKEN
-          filters: *release-filters
+            - command-tests
+          context: orb-publishing
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+
+# VS Code Extension Version: 1.4.0
