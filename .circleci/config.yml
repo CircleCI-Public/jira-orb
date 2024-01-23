@@ -21,7 +21,7 @@ workflows:
       - shellcheck/check:
           filters: *filters
       - orb-tools/publish:
-          orb-name: terawatt-infrastructure/jira-orb
+          orb-name: terawatt-infrastructure/jira-orb-public
           vcs-type: << pipeline.project.type >>
           requires:
             [orb-tools/lint, orb-tools/review, orb-tools/pack, shellcheck/check]
