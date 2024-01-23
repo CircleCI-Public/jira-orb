@@ -26,7 +26,7 @@ parameters:
     default: ([A-Z]{2,30}-[0-9]+)
     type: string
   issue_normalize:
-    description: Normalize the issue regex to match the default expected value of 'issue_regexp' -- Set slug to uppercase and replace space and underscore with dash.
+    description: Normalize the issue regexp to match the default expected value of 'issue_regexp' -- Set slug to uppercase and replace space and underscore with dash.
     type: boolean
     default: false
   pipeline_id:
