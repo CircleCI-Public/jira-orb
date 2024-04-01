@@ -3,8 +3,11 @@ version: 2.1
 description: >
   Connect your CircleCI pipelines to Jira. Define builds and deployments as config and automatically update Jira issues with the results of your pipelines.
 
+  FORKED VERSION OF https://github.com/circleci-public/jira-orb
+
+  It is unclear if the original orb is still maintained, so this serves as a place for experimentation and potential changes to eventually contribute back
+
 # This information will be displayed in the orb registry and is not mandatory.
 display:
   home_url: "https://circleci.com/docs/jira-plugin/"
-  source_url: "https://github.com/circleci-public/jira-orb"
-
+  source_url: "https://github.com/smartrent/jira-orb"
