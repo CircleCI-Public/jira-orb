@@ -246,6 +246,11 @@ PROJECT_VCS=""
 PROJECT_SLUG=""
 JIRA_ISSUE_KEYS=() # Set in getIssueKeys
 
+if [[ "$JIRA_BUILD_STATUS" == "failed" && -f "/tmp/circleci_jira_failed_reported" ]]; then
+  echo "Failed status previously reported in this workflow. Skipping"
+  errorOut 0
+fi
+
 # Built-ins - For reference
 # CIRCLE_BUILD_URL is the URL of the current build
 # CIRCLE_SHA1 is the commit hash of the current build
@@ -314,6 +319,15 @@ main() {
     echo "Unable to determine job type"
     exit 1 # Critical error, do not skip
   fi
+
+  if [[ "$JIRA_BUILD_STATUS" == "failed" ]]; then
+    # Mark that we've successfully reported the error. This file is
+    # used above to prevent sending the failure notification with
+    # multiple uses of the jira/notify command for different 
+    # successful deployment states since those jobs will always run
+    touch /tmp/circleci_jira_failed_reported
+  fi
+
   printf "\nJira notification sent!\n\n"
   MSG=$(printf "sent=true")
   log "$MSG"

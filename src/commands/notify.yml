@@ -47,6 +47,17 @@ parameters:
     description: "Ignore errors. Errors posting to Atlassian will not result in failed builds unless disabled."
     type: boolean
     default: true
+  state:
+    description: >
+      A valid Jira state for the build/deployment. If set as `unknown` (default),
+      then the state will be determined by the job status as `successful` or `failed`.
+      `rolled_back` is only valid for deployments.
+
+      See https://developer.atlassian.com/cloud/jira/software/rest/api-group-deployments/#api-rest-deployments-0-1-bulk-post or
+      https://developer.atlassian.com/cloud/jira/software/rest/api-group-builds/#api-rest-builds-0-1-bulk-post
+    type: enum
+    enum: [unknown, pending, in_progress, cancelled, failed, rolled_back, successful]
+    default: unknown
 steps:
   - run:
       when: on_fail
@@ -58,6 +69,8 @@ steps:
       when: on_success
       name: "Jira - Detecting Job Status: Successful"
       environment:
+        JIRA_VAL_JOB_TYPE: <<parameters.job_type>>
+        JIRA_VAL_STATE: <<parameters.state>>
         JOB_STATUS: "successful"
       command: <<include(scripts/detect.sh)>>
   - run:
