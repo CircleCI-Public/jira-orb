@@ -65,7 +65,7 @@ remove_duplicates() {
   declare -A seen
   # Declare UNIQUE_KEYS as a global variable
   UNIQUE_KEYS=()
-  
+
   for value in "$@"; do
     # Splitting value into array by space, considering space-separated keys in a single string
     for single_value in $value; do
@@ -121,7 +121,7 @@ getIssueKeys() {
   JIRA_ISSUE_KEYS=$(printf '%s\n' "${KEY_ARRAY[@]}" | jq -R . | jq -s .)
   echo "Issue keys found:"
   echo "$JIRA_ISSUE_KEYS" | jq -r '.[]'
-  
+
   # Export JIRA_ISSUE_KEYS for use in other scripts or sessions
   export JIRA_ISSUE_KEYS
 }
@@ -215,6 +215,21 @@ getTagKeys() {
   done
   echo "${TAG_KEYS[@]}"
 }
+
+circleciCliCheck() {
+  HAS_CIRCLECI_CLI=0
+  which circleci > circleci-location.log || HAS_CIRCLECI_CLI=$?
+  if [[ "$HAS_CIRCLECI_CLI" != 0 ]]; then
+    echo "CircleCI CLI not installed, unable to continue!"
+    errorOut 1
+  else
+    echo "CircleCI CLI installed at: $(cat circleci-location.log)"
+    rm circleci-location.log
+  fi
+}
+
+# Verify presence of circleci
+circleciCliCheck
 
 # Sanetize the input
 # JIRA_VAL_JOB_TYPE - Enum string value of 'build' or 'deploy'
