@@ -37,8 +37,7 @@ executors:
       - image: cimg/base:current
   macos:
     macos:
-      xcode: 15.0.0
-      resource_class: macos.x86.medium.gen2
+      xcode: 15.2.0
 
 jobs:
   test:
