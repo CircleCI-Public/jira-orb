@@ -216,6 +216,21 @@ getTagKeys() {
   echo "${TAG_KEYS[@]}"
 }
 
+circleciCliCheck() {
+  HAS_CIRCLECI_CLI=0
+  which circleci > circleci-location.log || HAS_CIRCLECI_CLI=$?
+  if [[ "$HAS_CIRCLECI_CLI" != 0 ]]; then
+    echo "CircleCI CLI not installed, unable to continue!"
+    errorOut 1
+  else
+    echo "CircleCI CLI installed at: $(cat circleci-location.log)"
+    rm circleci-location.log
+  fi
+}
+
+# Verify presence of circleci
+circleciCliCheck
+
 # Sanetize the input
 # JIRA_VAL_JOB_TYPE - Enum string value of 'build' or 'deploy'
 # JIRA_BOOL_DEBUG - 1 = true, 0 = false
