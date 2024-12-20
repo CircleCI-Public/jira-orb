@@ -99,11 +99,11 @@ getIssueKeys() {
   [[ -n "$COMMIT_KEYS" ]] && KEY_ARRAY+=("$COMMIT_KEYS")
   [[ -n "$BODY_KEYS" ]] && KEY_ARRAY+=("$BODY_KEYS")
   [[ -n "$TAG_KEYS" ]] && KEY_ARRAY+=("$TAG_KEYS")
-
+  log "${KEY_ARRAY[@]}"
   # Remove duplicates
   remove_duplicates "${KEY_ARRAY[@]}"
   KEY_ARRAY=("${UNIQUE_KEYS[@]}")
-
+  log "${KEY_ARRAY[@]}"
   # Exit if no keys found
   if [[ ${#KEY_ARRAY[@]} -eq 0 ]]; then
     local message="No issue keys found in branch, commit message, or tag"
