@@ -6,7 +6,7 @@
 
 if [[ "$(uname -s)" == "Darwin" && "$SHELL" != "/bin/zsh" ]]; then
   echo "Running in ZSH on MacOS"
-  /bin/zsh -c "setopt KSH_ARRAYS BASH_REMATCH; $JIRA_SCRIPT_NOTIFY"
+  /bin/zsh -c "setopt KSH_ARRAYS BASH_REMATCH SHWORDSPLIT; $JIRA_SCRIPT_NOTIFY"
 else 
   /bin/bash -c "$JIRA_SCRIPT_NOTIFY"
 fi

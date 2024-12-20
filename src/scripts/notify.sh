@@ -62,6 +62,7 @@ parseKeys() {
 }
 
 remove_duplicates() {
+  set -x
   declare -A seen
   # Declare UNIQUE_KEYS as a global variable
   UNIQUE_KEYS=()
@@ -78,6 +79,7 @@ remove_duplicates() {
       fi
     done
   done
+  set +x
 }
 
 # Sets the JIRA_ISSUE_KEYS or prints an error
