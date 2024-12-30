@@ -42,8 +42,6 @@ executors:
 jobs:
   test:
     executor: << parameters.executor >>
-    environment:
-      JIRA_DEBUG_TEST_COMMIT: "HEAD"
     parameters:
       executor:
         type: executor
