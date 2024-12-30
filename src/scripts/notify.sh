@@ -52,8 +52,15 @@ getSlug() {
 # Accepts a string and returns an array of keys
 parseKeys() {
   local KEY_ARRAY=()
+  local MATCH
   while [[ "$1" =~ $JIRA_VAL_ISSUE_REGEXP ]]; do
-    KEY_ARRAY+=("${BASH_REMATCH[1]}")
+    MATCH="${BASH_REMATCH[1]}"
+    # Check if this match should be normalized
+    if [[ "$JIRA_VAL_ISSUE_NORMALIZE" -eq 1 ]]; then
+      # Make uppercase and replace underscore and space with dash
+      MATCH=$(echo "${MATCH^^}" | tr '_ ' '-')
+    fi
+    KEY_ARRAY+=("${MATCH}")
     # Remove the matched part from the string so we can continue matching the rest
     local rest="${1#*"${BASH_REMATCH[0]}"}"
     set -- "$rest"
